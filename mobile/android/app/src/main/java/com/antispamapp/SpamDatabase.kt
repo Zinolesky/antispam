@@ -136,7 +136,7 @@ class SpamDatabase private constructor(context: Context) :
             val cursor = readableDatabase.rawQuery("SELECT prefix FROM user_block_prefixes", null)
             cursor.use { c ->
                 while (c.moveToNext()) {
-                    val p = c.getString(0)
+                    val p = c.getString(0).replace(Regex("[\\s\\-().tel:*#]"), "")
                     val pVariants = getPrefixVariants(p)
                     for (pv in pVariants) {
                         for (nv in phoneVariants) {
@@ -168,7 +168,7 @@ class SpamDatabase private constructor(context: Context) :
     }
 
     private fun getPrefixVariants(rawPrefix: String): List<String> {
-        val cleaned = rawPrefix.replace(Regex("[\\s\\-().tel:]"), "")
+        val cleaned = rawPrefix.replace(Regex("[\\s\\-().tel:*#]"), "")
         if (cleaned.isEmpty()) return emptyList()
 
         val variants = mutableSetOf<String>()

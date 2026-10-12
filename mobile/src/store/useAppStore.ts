@@ -8,6 +8,7 @@ import {
   getAccessToken,
   storeTokens,
 } from '@services/ApiService';
+import { setNativeScreeningPaused } from '@services/NativeBridge';
 
 interface UserProfile {
   id: string;
@@ -101,7 +102,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setScreeningRole: (granted) => set({ hasScreeningRole: granted }),
-  setScreeningPaused: (paused) => set({ isScreeningPaused: paused }),
+  setScreeningPaused: (paused) => {
+    set({ isScreeningPaused: paused });
+    setNativeScreeningPaused(paused);
+  },
 
   setSyncStatus: ({ lastSyncAt, deltasCount, syncing }) =>
     set(state => ({

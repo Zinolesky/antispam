@@ -38,6 +38,16 @@ class SpamCallScreeningService : CallScreeningService() {
         val phoneNumber = normalizeNumber(rawHandle)
         val db = SpamDatabase.getInstance(applicationContext)
 
+        // 0. Check if user paused call screening / protection
+        val prefs = applicationContext.getSharedPreferences("antispam_prefs", android.content.Context.MODE_PRIVATE)
+        val isPaused = prefs.getBoolean("is_screening_paused", false)
+        if (isPaused) {
+            respondToCall(callDetails, buildAllowResponse())
+            emitScreeningEvent(phoneNumber, "allowed", 0)
+            db.logCall(phoneNumber, "allowed", 0)
+            return
+        }
+
         // 1. Check personal block list (highest priority)
         if (db.isBlocked(phoneNumber)) {
             val response = CallResponse.Builder()

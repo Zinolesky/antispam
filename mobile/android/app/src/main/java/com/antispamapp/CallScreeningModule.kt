@@ -85,6 +85,20 @@ class CallScreeningModule(private val reactContext: ReactApplicationContext) :
         promise.resolve(status)
     }
 
+    // ── Guard Pause / Resume ───────────────────────────────────────────────────
+
+    @ReactMethod
+    fun setScreeningPaused(paused: Boolean) {
+        val prefs = reactContext.getSharedPreferences("antispam_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("is_screening_paused", paused).apply()
+    }
+
+    @ReactMethod
+    fun isScreeningPaused(promise: Promise) {
+        val prefs = reactContext.getSharedPreferences("antispam_prefs", Context.MODE_PRIVATE)
+        promise.resolve(prefs.getBoolean("is_screening_paused", false))
+    }
+
     // ── Event emission ─────────────────────────────────────────────────────────
 
     /**

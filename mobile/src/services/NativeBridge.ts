@@ -93,3 +93,27 @@ export async function getScreeningStatus(): Promise<ScreeningRoleStatus> {
     return 'not_requested';
   }
 }
+
+/**
+ * Persists the pause/resume screening state to Android native SharedPreferences.
+ */
+export function setNativeScreeningPaused(paused: boolean): void {
+  if (Platform.OS !== 'android') return;
+  try {
+    CallScreeningModule?.setScreeningPaused(paused);
+  } catch (err) {
+    console.warn('[NativeBridge] Failed to set screening paused state:', err);
+  }
+}
+
+/**
+ * Reads whether call screening is currently paused from Android native SharedPreferences.
+ */
+export async function isNativeScreeningPaused(): Promise<boolean> {
+  if (Platform.OS !== 'android') return false;
+  try {
+    return (await CallScreeningModule?.isScreeningPaused()) ?? false;
+  } catch {
+    return false;
+  }
+}

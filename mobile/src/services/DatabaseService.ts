@@ -99,6 +99,13 @@ async function createTables(db: SQLiteDatabase): Promise<void> {
              ('0201700', 'Lagos Telemarketing / Robocalls');
     `);
 
+    // Clean up any legacy entries that had asterisks or wildcards stored
+    tx.executeSql(`
+      UPDATE user_block_prefixes
+      SET prefix = REPLACE(REPLACE(prefix, '*', ''), '#', '')
+      WHERE prefix LIKE '%*%' OR prefix LIKE '%#%';
+    `);
+
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS call_log (
         id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -316,7 +323,7 @@ export async function isBlocked(phoneNumber: string): Promise<boolean> {
 // ── Prefix Block List ──────────────────────────────────────────────────────────
 
 export async function addBlockedPrefix(entry: BlockedPrefixEntry): Promise<void> {
-  const raw = entry.prefix.trim().replace(/[\s\-().]/g, '');
+  const raw = entry.prefix.trim().replace(/[\s\-().*#]/g, '');
   if (!raw) return;
   await db().executeSql(
     `INSERT OR REPLACE INTO user_block_prefixes(prefix, label, created_at)
@@ -326,9 +333,10 @@ export async function addBlockedPrefix(entry: BlockedPrefixEntry): Promise<void>
 }
 
 export async function removeBlockedPrefix(prefix: string): Promise<void> {
+  const clean = prefix.trim().replace(/[\s\-().*#]/g, '');
   await db().executeSql(
-    `DELETE FROM user_block_prefixes WHERE prefix = ?`,
-    [prefix.trim()],
+    `DELETE FROM user_block_prefixes WHERE prefix = ? OR prefix = ?`,
+    [clean, prefix.trim()],
   );
 }
 
@@ -338,7 +346,11 @@ export async function getBlockedPrefixes(): Promise<BlockedPrefixEntry[]> {
   );
   const entries: BlockedPrefixEntry[] = [];
   for (let i = 0; i < result.rows.length; i++) {
-    entries.push(result.rows.item(i) as BlockedPrefixEntry);
+    const item = result.rows.item(i) as BlockedPrefixEntry;
+    entries.push({
+      prefix: item.prefix.replace(/[\s\-().*#]/g, ''),
+      label: item.label,
+    });
   }
   return entries;
 }

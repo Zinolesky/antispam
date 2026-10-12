@@ -43,10 +43,18 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    reports: Mapped[list["SpamReport"]] = relationship(back_populates="reporter")
-    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(back_populates="user")
-    block_list: Mapped[list["UserBlockList"]] = relationship(back_populates="user")
-    block_prefixes: Mapped[list["UserBlockPrefix"]] = relationship(back_populates="user")
+    reports: Mapped[list["SpamReport"]] = relationship(
+        back_populates="reporter", passive_deletes=True
+    )
+    refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    block_list: Mapped[list["UserBlockList"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    block_prefixes: Mapped[list["UserBlockPrefix"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class RefreshToken(Base):

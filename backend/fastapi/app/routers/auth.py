@@ -3,7 +3,8 @@ import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import select
+from pydantic import BaseModel
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.jwt import (
@@ -18,7 +19,7 @@ from app.auth.jwt import (
 from app.auth.oauth import build_google_auth_url, exchange_google_code
 from app.config import get_settings
 from app.database import get_db
-from app.models import User
+from app.models import RefreshToken, User, UserBlockList, UserBlockPrefix
 from app.schemas import (
     LoginRequest,
     RefreshRequest,
@@ -173,6 +174,10 @@ async def delete_my_account(
     """
     Permanently deletes user account, custom blocklists, prefix rules, and refresh tokens.
     """
+    # Delete child records explicitly to avoid constraint/cascade issues
+    await db.execute(delete(RefreshToken).where(RefreshToken.user_id == current_user.id))
+    await db.execute(delete(UserBlockList).where(UserBlockList.user_id == current_user.id))
+    await db.execute(delete(UserBlockPrefix).where(UserBlockPrefix.user_id == current_user.id))
     await db.delete(current_user)
     await db.commit()
     return {"status": "ok", "message": "Account and all associated personal data permanently deleted."}
@@ -206,6 +211,10 @@ async def request_account_deletion_web(
         if not verify_password(body.password, user.hashed_password):
             raise HTTPException(status_code=400, detail="Incorrect account password.")
 
+    # Delete child records explicitly before deleting user
+    await db.execute(delete(RefreshToken).where(RefreshToken.user_id == user.id))
+    await db.execute(delete(UserBlockList).where(UserBlockList.user_id == user.id))
+    await db.execute(delete(UserBlockPrefix).where(UserBlockPrefix.user_id == user.id))
     await db.delete(user)
     await db.commit()
     return {

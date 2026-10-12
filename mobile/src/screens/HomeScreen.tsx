@@ -32,6 +32,7 @@ import {
   onRoleGranted,
   onRoleDenied,
   onCallScreened,
+  isNativeScreeningPaused,
 } from '@services/NativeBridge';
 import { syncOnce } from '@services/SyncService';
 import { useAppStore } from '@store/useAppStore';
@@ -105,13 +106,18 @@ export default function HomeScreen() {
 
   const loadData = useCallback(async () => {
     try {
-      const [log, role] = await Promise.all([getCallLog(50), hasScreeningRole()]);
+      const [log, role, paused] = await Promise.all([
+        getCallLog(50),
+        hasScreeningRole(),
+        isNativeScreeningPaused(),
+      ]);
       setCallLog(log);
       setScreeningRole(role);
+      setScreeningPaused(paused);
     } finally {
       setLoading(false);
     }
-  }, [setScreeningRole]);
+  }, [setScreeningRole, setScreeningPaused]);
 
   useEffect(() => {
     loadData();

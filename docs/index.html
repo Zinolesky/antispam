@@ -355,25 +355,37 @@
           btn.innerText = 'Processing Deletion...';
 
           try {
-            // Send request to API endpoint (or fallback gracefully)
-            const res = await fetch('https://api.antispamapp.com/api/v1/auth/delete-account-request', {
+            const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+              ? 'http://localhost:8088'
+              : 'https://api.antispamapp.com';
+
+            const res = await fetch(`${apiBase}/api/v1/auth/delete-account-request`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ email, password: password || undefined, confirm: true })
             });
+
             const data = await res.json();
             result.style.display = 'block';
-            result.style.background = 'rgba(64, 225, 126, 0.15)';
-            result.style.border = '1px solid rgba(64, 225, 126, 0.3)';
-            result.style.color = '#40E17E';
-            result.innerText = data.message || 'Your account and personal cloud data have been permanently erased.';
-            document.getElementById('deletionForm').reset();
+
+            if (res.ok) {
+              result.style.background = 'rgba(64, 225, 126, 0.15)';
+              result.style.border = '1px solid rgba(64, 225, 126, 0.3)';
+              result.style.color = '#40E17E';
+              result.innerText = data.message || 'Your account and personal cloud data have been permanently erased.';
+              document.getElementById('deletionForm').reset();
+            } else {
+              result.style.background = 'rgba(235, 87, 87, 0.15)';
+              result.style.border = '1px solid rgba(235, 87, 87, 0.3)';
+              result.style.color = '#FF6B6B';
+              result.innerText = data.detail || 'Failed to process account deletion request.';
+            }
           } catch (err) {
             result.style.display = 'block';
-            result.style.background = 'rgba(64, 225, 126, 0.15)';
-            result.style.border = '1px solid rgba(64, 225, 126, 0.3)';
-            result.style.color = '#40E17E';
-            result.innerText = 'Deletion request successfully scheduled. All records associated with ' + email + ' will be permanently purged within 24 hours.';
+            result.style.background = 'rgba(235, 87, 87, 0.15)';
+            result.style.border = '1px solid rgba(235, 87, 87, 0.3)';
+            result.style.color = '#FF6B6B';
+            result.innerText = 'Unable to reach the backend cloud server (api.antispamapp.com is not yet connected to a public cloud IP). While developing locally, use the "Delete Account" button directly in the ShieldCall mobile app Settings, or contact support at taigbenuefezino@gmail.com.';
           } finally {
             btn.disabled = false;
             btn.style.opacity = '1';

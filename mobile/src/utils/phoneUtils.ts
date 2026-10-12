@@ -73,7 +73,7 @@ export function getPhoneNumberVariants(raw: string): string[] {
  * e.g. for "0201888": ["0201888", "+234201888", "234201888", "+0201888"]
  */
 export function getPrefixVariants(rawPrefix: string): string[] {
-  const cleaned = rawPrefix.trim().replace(/[\s\-().]/g, '');
+  const cleaned = rawPrefix.trim().replace(/[\s\-().*#]/g, '');
   const variants = new Set<string>();
   if (!cleaned) return [];
 

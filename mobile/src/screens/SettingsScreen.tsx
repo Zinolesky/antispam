@@ -128,9 +128,9 @@ export default function SettingsScreen() {
   };
 
   const handleAddPrefix = async () => {
-    const trimmed = newPrefix.trim().replace(/[\s\-().]/g, '');
+    const trimmed = newPrefix.trim().replace(/[\s\-().*#]/g, '');
     if (!trimmed) {
-      Alert.alert('Error', 'Please enter a number prefix (e.g. 0201888)');
+      Alert.alert('Error', 'Please enter a number prefix (e.g. 0201888 or 081)');
       return;
     }
     if (trimmed.length < 3) {
@@ -562,7 +562,7 @@ export default function SettingsScreen() {
               <Symbol name="dialpad" size={16} color={c.outline} />
               <TextInput
                 style={[t.labelCode, styles.prefixInput]}
-                placeholder="e.g. +2341888*"
+                placeholder="e.g. 0201888 or 081"
                 placeholderTextColor={a(c.outline, 0.6)}
                 value={newPrefix}
                 onChangeText={setNewPrefix}
@@ -588,7 +588,7 @@ export default function SettingsScreen() {
                   <View style={{ flex: 1 }}>
                     <View style={styles.inline}>
                       <Text style={[t.labelCode, { color: c.onSurface, fontFamily: fonts.mono700, fontSize: 14 }]}>
-                        {rule.prefix}*
+                        {rule.prefix.replace(/[\s\-().*#]/g, '')}*
                       </Text>
                       <View style={styles.ruleBadge}>
                         <Text style={[t.labelBadge, { color: c.error }]}>VoIP Range</Text>
@@ -599,7 +599,7 @@ export default function SettingsScreen() {
                     </Text>
                     <View style={[styles.inline, { marginTop: 2, gap: 4 }]}>
                       <Symbol name="security" size={12} color={c.error} />
-                      <Text style={[t.labelCaption, { color: c.outline }]}>Rejects all {rule.prefix}xxxx calls</Text>
+                      <Text style={[t.labelCaption, { color: c.outline }]}>Rejects all {rule.prefix.replace(/[\s\-().*#]/g, '')}xxxx calls</Text>
                     </View>
                   </View>
                 </View>
