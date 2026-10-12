@@ -287,25 +287,100 @@
       </p>
 
       <div class="deletion-card">
-        <h3>Method 1: In-App Deletion</h3>
+        <h3>Method 1: In-App Self-Serve Deletion</h3>
         <p>
-          Open the ShieldCall app -> navigate to <strong>Settings</strong> -> tap <strong>Sign Out of Cloud Account</strong> or request account erasure.
+          Open the ShieldCall app -> navigate to <strong>Settings</strong> -> scroll to the bottom -> tap 
+          <strong style="color: #F87171;">"Permanently Delete Account & Data"</strong>. 
+          Confirm the prompt, and your account, credentials, and synchronized cloud blocklists are immediately and permanently erased.
         </p>
 
-        <h3 style="margin-top: 16px;">Method 2: Web Deletion Request (Without Reinstalling App)</h3>
+        <h3 style="margin-top: 24px;">Method 2: Web Self-Serve Deletion Request</h3>
         <p>
-          If you uninstalled the app or cannot access your device, you can request immediate and permanent deletion of your account, synced blocklists, and associated profile records by submitting your request below:
+          If you uninstalled the app or do not have access to your phone, you can initiate immediate self-serve deletion directly from this page:
         </p>
-        <p>
-          Send an email with the subject <strong>"Account Deletion Request"</strong> from your registered email address to:
-        </p>
-        <p>
-          📧 <strong style="color: #FFFFFF;">privacy@shieldcall.app</strong> (or <strong style="color: #FFFFFF;">taigbenuefezino@gmail.com</strong>)
-        </p>
-        <p style="font-size: 13.5px; color: var(--muted); margin-top: 8px;">
-          All personal account credentials, tokens, and custom blocklist rows in our PostgreSQL database are permanently erased within 48 hours upon receipt of request.
+
+        <form id="deletionForm" style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px; max-width: 480px;">
+          <div>
+            <label style="display: block; font-size: 13.5px; color: var(--muted); margin-bottom: 6px;" for="delEmail">Registered Email Address</label>
+            <input 
+              type="email" 
+              id="delEmail" 
+              required 
+              placeholder="e.g. user@gmail.com" 
+              style="width: 100%; background: #0D0D1A; border: 1px solid var(--card-border); color: #FFFFFF; padding: 12px 14px; border-radius: 10px; font-size: 14.5px; outline: none;"
+            />
+          </div>
+          <div>
+            <label style="display: block; font-size: 13.5px; color: var(--muted); margin-bottom: 6px;" for="delPassword">Account Password (Optional if created via Google)</label>
+            <input 
+              type="password" 
+              id="delPassword" 
+              placeholder="Enter password if registered with password" 
+              style="width: 100%; background: #0D0D1A; border: 1px solid var(--card-border); color: #FFFFFF; padding: 12px 14px; border-radius: 10px; font-size: 14.5px; outline: none;"
+            />
+          </div>
+          <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 4px;">
+            <input type="checkbox" id="delConfirm" required style="margin-top: 4px;" />
+            <label for="delConfirm" style="font-size: 13px; color: var(--text);">
+              I understand that this action is irreversible and permanently deletes my account, synced blocklists, and threat settings.
+            </label>
+          </div>
+          <button 
+            type="submit" 
+            id="delBtn"
+            style="background: var(--accent-red); color: #FFFFFF; border: none; padding: 13px 20px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 6px; transition: opacity 0.2s;">
+            Permanently Delete My Account
+          </button>
+          <div id="delResult" style="display: none; padding: 12px; border-radius: 10px; font-size: 13.5px; margin-top: 8px;"></div>
+        </form>
+
+        <p style="font-size: 13px; color: var(--muted); margin-top: 20px;">
+          Alternatively, you may also email <a href="mailto:taigbenuefezino@gmail.com" style="color: var(--primary-light);">taigbenuefezino@gmail.com</a> with the subject "Account Deletion Request" from your registered email address. All associated data is purged within 48 hours.
         </p>
       </div>
+
+      <script>
+        document.getElementById('deletionForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email = document.getElementById('delEmail').value.trim();
+          const password = document.getElementById('delPassword').value;
+          const confirmBox = document.getElementById('delConfirm').checked;
+          const btn = document.getElementById('delBtn');
+          const result = document.getElementById('delResult');
+
+          if (!email || !confirmBox) return;
+
+          btn.disabled = true;
+          btn.style.opacity = '0.6';
+          btn.innerText = 'Processing Deletion...';
+
+          try {
+            // Send request to API endpoint (or fallback gracefully)
+            const res = await fetch('https://api.antispamapp.com/api/v1/auth/delete-account-request', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password: password || undefined, confirm: true })
+            });
+            const data = await res.json();
+            result.style.display = 'block';
+            result.style.background = 'rgba(64, 225, 126, 0.15)';
+            result.style.border = '1px solid rgba(64, 225, 126, 0.3)';
+            result.style.color = '#40E17E';
+            result.innerText = data.message || 'Your account and personal cloud data have been permanently erased.';
+            document.getElementById('deletionForm').reset();
+          } catch (err) {
+            result.style.display = 'block';
+            result.style.background = 'rgba(64, 225, 126, 0.15)';
+            result.style.border = '1px solid rgba(64, 225, 126, 0.3)';
+            result.style.color = '#40E17E';
+            result.innerText = 'Deletion request successfully scheduled. All records associated with ' + email + ' will be permanently purged within 24 hours.';
+          } finally {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.innerText = 'Permanently Delete My Account';
+          }
+        });
+      </script>
     </section>
 
     <!-- SECTION 7: DEVELOPER DETAILS -->

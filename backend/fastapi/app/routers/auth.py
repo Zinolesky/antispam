@@ -164,6 +164,56 @@ async def me(current_user: User = Depends(_get_current_user)):
     return current_user
 
 
+# ── Delete Account (In-App Authenticated) ──────────────────────────────────────
+@router.delete("/me", status_code=status.HTTP_200_OK)
+async def delete_my_account(
+    current_user: User = Depends(_get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Permanently deletes user account, custom blocklists, prefix rules, and refresh tokens.
+    """
+    await db.delete(current_user)
+    await db.commit()
+    return {"status": "ok", "message": "Account and all associated personal data permanently deleted."}
+
+
+# ── Delete Account Request (Public Web Form) ───────────────────────────────────
+class WebAccountDeletionRequest(BaseModel):
+    email: str
+    password: Optional[str] = None
+    confirm: bool = True
+
+@router.post("/delete-account-request", status_code=status.HTTP_200_OK)
+async def request_account_deletion_web(
+    body: WebAccountDeletionRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Public web deletion endpoint for users requesting account erasure outside the app.
+    """
+    stmt = select(User).where(User.email == body.email.strip().lower())
+    user = (await db.execute(stmt)).scalar_one_or_none()
+    if not user:
+        # Prevent email enumeration: return standard success message
+        return {
+            "status": "ok",
+            "message": f"If an account exists for {body.email}, it has been scheduled and processed for permanent deletion.",
+        }
+
+    # If account has a password and password was provided, verify it; otherwise delete user
+    if user.hashed_password and body.password:
+        if not verify_password(body.password, user.hashed_password):
+            raise HTTPException(status_code=400, detail="Incorrect account password.")
+
+    await db.delete(user)
+    await db.commit()
+    return {
+        "status": "ok",
+        "message": f"Account for {body.email} and all associated cloud rules have been permanently deleted.",
+    }
+
+
 # ── Google OAuth2 — Initiate ───────────────────────────────────────────────────
 @router.get("/oauth/google")
 async def google_login(format: Optional[str] = None):

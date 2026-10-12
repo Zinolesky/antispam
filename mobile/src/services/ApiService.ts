@@ -140,6 +140,8 @@ export const AuthAPI = {
 
   me: () => authClient.get('/auth/me'),
 
+  deleteAccount: () => authClient.delete('/auth/me'),
+
   getGoogleAuthUrl: () => authClient.get<{ auth_url: string }>('/auth/oauth/google?format=json'),
 };
 

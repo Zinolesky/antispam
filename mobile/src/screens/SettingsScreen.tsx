@@ -254,6 +254,37 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Permanently Delete Account?',
+      'This will immediately and permanently erase your account, login credentials, and all synchronized cloud blocklists. Local filters on this device will not be deleted.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AuthAPI.deleteAccount();
+              await logout();
+              await loadInfo();
+              Alert.alert('Account Deleted', 'Your account and personal cloud data have been completely erased.');
+            } catch (err: any) {
+              const msg = err.response?.data?.detail || err.message || 'Failed to delete account.';
+              Alert.alert('Error', typeof msg === 'string' ? msg : 'Failed to delete account.');
+            }
+          },
+        },
+      ],
+      {
+        icon: 'delete_forever',
+        variant: 'destructive',
+        capsule: 'Permanent Irreversible Deletion',
+        capsuleIcon: 'warning',
+      },
+    );
+  };
+
   const isProUser = Boolean(user?.is_pro);
   const subscriptionTierLabel = isProUser ? 'Shield Pro Active' : 'Shield Free';
   const tierPriorityLabel = isProUser ? 'Tier 1 Priority' : 'Standard Tier';
@@ -641,13 +672,23 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Sign out button (if logged in) */}
+        {/* Sign out & Delete Account buttons (if logged in) */}
         {user && (
-          <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
-            <Text style={[t.bodyMd, { color: c.error, fontFamily: fonts.manrope600 }]}>
-              Sign Out of Cloud Account
-            </Text>
-          </TouchableOpacity>
+          <View style={{ gap: 8, marginTop: 4 }}>
+            <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
+              <Text style={[t.bodyMd, { color: c.error, fontFamily: fonts.manrope600 }]}>
+                Sign Out of Cloud Account
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.signOutBtn, { backgroundColor: 'transparent', borderColor: 'rgba(239, 68, 68, 0.2)' }]}
+              onPress={handleDeleteAccount}>
+              <Text style={[t.bodySm, { color: '#F87171', fontFamily: fonts.manrope600 }]}>
+                Permanently Delete Account & Data
+              </Text>
+            </TouchableOpacity>
+          </View>
         )}
       </ScrollView>
 
