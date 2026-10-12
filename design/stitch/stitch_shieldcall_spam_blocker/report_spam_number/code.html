@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShieldCall - Report Spam Number</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#150066",
+            "on-primary-container": "#21008e",
+            "tertiary-fixed-dim": "#ffb95d",
+            "secondary-fixed-dim": "#40e17e",
+            "on-secondary-fixed": "#00210c",
+            "surface": "#12121f",
+            "surface-bright": "#383847",
+            "on-primary-fixed-variant": "#3f2bb8",
+            "on-error": "#690005",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-container-highest": "#343342",
+            "secondary-fixed": "#63ff97",
+            "inverse-surface": "#e3e0f4",
+            "inverse-on-surface": "#2f2f3d",
+            "primary-container": "#8b80ff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "secondary-container": "#00c263",
+            "surface-container-high": "#292937",
+            "on-secondary-container": "#004821",
+            "on-surface": "#e3e0f4",
+            "tertiary-container": "#c98100",
+            "tertiary-fixed": "#ffddb7",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#005226",
+            "on-primary": "#2700a1",
+            "primary": "#c6c0ff",
+            "surface-dim": "#12121f",
+            "on-surface-variant": "#c8c4d6",
+            "primary-fixed": "#e4dfff",
+            "background": "#12121f",
+            "secondary": "#40e17e",
+            "primary-fixed-dim": "#c6c0ff",
+            "surface-container": "#1e1e2c",
+            "outline-variant": "#474554",
+            "error": "#ffb4ab",
+            "surface-tint": "#c6c0ff",
+            "outline": "#928fa0",
+            "surface-container-lowest": "#0d0d1a",
+            "on-tertiary": "#462a00",
+            "surface-container-low": "#1a1a28",
+            "on-secondary": "#003919",
+            "tertiary": "#ffb95d",
+            "on-background": "#e3e0f4",
+            "on-tertiary-container": "#3d2400",
+            "error-container": "#93000a",
+            "surface-variant": "#343342",
+            "inverse-primary": "#5748d0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-tablet": "2rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "gutter-tablet": "1.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-caption": ["Manrope"],
+            "body-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "display": ["Space Grotesk"],
+            "display-mobile": ["Space Grotesk"],
+            "label-badge": ["JetBrains Mono"],
+            "body-md": ["Manrope"],
+            "headline-sm": ["Space Grotesk"],
+            "label-code": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-caption": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "display-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-code": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-glow-brand {
+      box-shadow: 0 0 32px -8px rgba(124, 111, 247, 0.35);
+    }
+    .custom-glow-threat {
+      box-shadow: 0 0 24px -6px rgba(255, 185, 93, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-primary-container selection:text-on-primary-container pb-28">
+<!-- Top Navigation Anchor (Shared Component: TopAppBar) -->
+<header class="bg-surface-container-lowest/85 dark:bg-surface-container-lowest/85 backdrop-blur-md sticky top-0 z-40 w-full px-4 h-16 flex justify-between items-center shadow-sm">
+<div class="flex items-center space-x-2">
+<button aria-label="Shield" class="flex items-center justify-center p-2 rounded-lg text-primary hover:text-primary transition-colors duration-150 active:scale-95">
+<span class="material-symbols-outlined text-primary text-[24px]">shield</span>
+</button>
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface dark:text-on-surface tracking-tight">ShieldCall</span>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-0.5 rounded-full bg-secondary/10 border border-secondary text-secondary font-label-badge text-label-badge flex items-center gap-1">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+        DEFENSE ACTIVE
+      </span>
+<button aria-label="Sync Threat Feed" class="p-2 rounded-lg text-on-surface-variant hover:text-primary transition-colors duration-150 active:scale-95">
+<span class="material-symbols-outlined text-on-surface-variant text-[22px]">sync</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas Container -->
+<main class="w-full max-w-[720px] mx-auto px-4 pt-4 pb-8 space-y-6 flex-1">
+<!-- Header & Subtitle -->
+<section class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">gpp_maybe</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Community Threat Intelligence</h1>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Help protect 250,000+ Nigerian mobile users from fraud
+      </p>
+</section>
+<!-- Info Banner: Zero-Knowledge Reporting -->
+<div class="rounded-xl p-3.5 bg-surface-container-low/90 border border-outline-variant/40 flex items-center space-x-3 backdrop-blur-md">
+<div class="w-8 h-8 rounded-lg bg-primary-container/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+</div>
+<div class="flex-1">
+<p class="font-label-code text-label-code text-primary font-medium">Zero-Knowledge Reporting</p>
+<p class="font-body-sm text-body-sm text-outline">Your phone number and subscriber identity stay completely anonymous</p>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px]">lock</span>
+</div>
+<!-- Phone Number Input Section -->
+<section class="rounded-2xl p-4 sm:p-5 bg-surface-container-low border border-outline-variant/40 space-y-3">
+<label class="block font-label-code text-label-code text-on-surface tracking-wide uppercase">
+        Target Phone Number
+      </label>
+<div class="flex items-center rounded-xl bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container focus-within:ring-1 focus-within:ring-primary-container transition-all h-[52px] px-3 gap-2">
+<!-- Country Selector -->
+<button class="flex items-center space-x-1.5 py-1 px-2 rounded-lg bg-surface-container-high border border-outline-variant/50 text-on-surface hover:bg-surface-container-highest transition-colors flex-shrink-0" type="button">
+<span aria-label="Nigeria Flag" class="text-[16px] leading-none" role="img">🇳🇬</span>
+<span class="font-label-badge text-label-badge text-on-surface">+234</span>
+<span class="material-symbols-outlined text-outline text-[16px]">arrow_drop_down</span>
+</button>
+<div class="h-6 w-px bg-outline-variant/40"></div>
+<!-- Clean Input -->
+<input class="w-full bg-transparent border-0 p-0 text-on-surface font-label-code text-label-code focus:ring-0 focus:outline-none placeholder:text-outline" placeholder="0803 000 0000 or +234..." type="tel" value="+234 814 990 1204"/>
+<button class="text-outline hover:text-on-surface transition-colors p-1" title="Paste from clipboard" type="button">
+<span class="material-symbols-outlined text-[18px]">content_paste</span>
+</button>
+</div>
+<!-- Instant on-device lookup badge -->
+<div class="flex items-center justify-between pt-1">
+<div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-tertiary/10 border border-tertiary/40 text-tertiary font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span>⚠️ 34 community flags in past 24h</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">MTN NG • Lagos Gateway</span>
+</div>
+</section>
+<!-- Spam Category Selector -->
+<section class="space-y-3">
+<div class="flex items-center justify-between">
+<label class="font-label-code text-label-code text-on-surface uppercase tracking-wide">
+          Select Spam Classification
+        </label>
+<span class="font-body-sm text-body-sm text-outline">Single selection</span>
+</div>
+<div aria-label="Spam Categories" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" role="radiogroup">
+<!-- Category 1 -->
+<button class="w-full text-left p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 transition-all flex items-center justify-between group" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Robocall / Automated Dialer</p>
+<p class="font-body-sm text-body-sm text-outline">Pre-recorded telecom IVR broadcast</p>
+</div>
+</div>
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</button>
+<!-- Category 2 -->
+<button class="w-full text-left p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 transition-all flex items-center justify-between group" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">phone_in_talk</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Telemarketer / Aggressive Sales</p>
+<p class="font-body-sm text-body-sm text-outline">Unsolicited commercial cold calls</p>
+</div>
+</div>
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</button>
+<!-- Category 3 (SELECTED STATE) -->
+<button class="w-full text-left p-3.5 rounded-xl bg-surface-container-high/90 border-2 border-primary-container shadow-[0_0_24px_-6px_rgba(124,111,247,0.35)] flex items-center justify-between transition-all relative overflow-hidden" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-primary-container/20 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">account_balance</span>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<p class="font-body-md text-body-md text-on-surface font-semibold">Financial Scam / Phishing</p>
+<span class="px-1.5 py-0.2 rounded bg-error-container/40 text-error font-label-badge text-[9px]">CRITICAL</span>
+</div>
+<p class="font-body-sm text-body-sm text-primary">BVN, POS terminal, or fake credit alert</p>
+</div>
+</div>
+<div class="w-5 h-5 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+</button>
+<!-- Category 4 -->
+<button class="w-full text-left p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 transition-all flex items-center justify-between group" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">theater_comedy</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Impersonation / Fraud</p>
+<p class="font-body-sm text-body-sm text-outline">EFCC, Customs, or family emergency</p>
+</div>
+</div>
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</button>
+<!-- Category 5 -->
+<button class="w-full text-left p-3.5 rounded-xl bg-surface-container-low border border-outline-variant/30 hover:border-primary/40 transition-all flex items-center justify-between group sm:col-span-2" type="button">
+<div class="flex items-center space-x-3">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-outline group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">price_change</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Fake Loan App Harassment</p>
+<p class="font-body-sm text-body-sm text-outline">Defamatory SMS, blacklist threats, unauthorized contact raiding</p>
+</div>
+</div>
+<div class="w-5 h-5 rounded-full border border-outline-variant flex items-center justify-center"></div>
+</button>
+</div>
+</section>
+<!-- Optional Notes & Caller ID Details Bento Container -->
+<section class="rounded-2xl p-4 sm:p-5 bg-surface-container-low border border-outline-variant/40 space-y-4">
+<div class="flex items-center justify-between">
+<label class="font-label-code text-label-code text-on-surface uppercase tracking-wide">
+          Incident Metadata (Optional)
+        </label>
+<span class="font-label-badge text-label-badge text-outline">AI NLP VERIFIED</span>
+</div>
+<!-- Caller Name Claimed -->
+<div class="space-y-1.5">
+<span class="block font-body-sm text-body-sm text-on-surface-variant">Caller Name or Entity Claimed</span>
+<div class="rounded-xl bg-surface-container-lowest border border-outline-variant focus-within:border-primary-container px-3 h-[52px] flex items-center">
+<span class="material-symbols-outlined text-outline text-[20px] mr-2">badge</span>
+<input class="w-full bg-transparent border-0 p-0 text-on-surface font-body-md text-body-md placeholder:text-outline focus:ring-0 focus:outline-none" placeholder="e.g. Access Bank Helpdesk or Customs Agent" type="text"/>
+</div>
+</div>
+<!-- Description / Modus Operandi -->
+<div class="space-y-1.5">
+<span class="block font-body-sm text-body-sm text-on-surface-variant">Description / Modus Operandi</span>
+<textarea class="w-full rounded-xl bg-surface-container-lowest border border-outline-variant focus:border-primary-container focus:ring-1 focus:ring-primary-container text-on-surface font-body-md text-body-md p-3 placeholder:text-outline focus:outline-none" placeholder="Describe caller pitch, bank impersonation, or threat details..." rows="3"></textarea>
+</div>
+</section>
+<!-- Local Enforcement Switch Card -->
+<div class="rounded-2xl p-4 sm:p-5 bg-surface-container border border-outline-variant/60 flex items-center justify-between gap-4">
+<div class="space-y-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">block</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Block immediately on this device</h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Immediately terminates future incoming calls from this caller without ringing
+        </p>
+</div>
+<!-- Custom Toggle (ON State) -->
+<div class="flex-shrink-0">
+<button aria-checked="true" class="w-14 h-8 bg-secondary rounded-full p-1 transition-colors duration-200 ease-in-out focus:outline-none relative flex items-center shadow-[0_0_16px_rgba(64,225,126,0.35)]" role="switch" type="button">
+<span class="w-6 h-6 bg-surface-container-lowest rounded-full shadow-md transform translate-x-6 transition-transform duration-200 ease-in-out flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-secondary font-bold">check</span>
+</span>
+</button>
+</div>
+</div>
+<!-- Actions CTA Cluster -->
+<div class="space-y-3 pt-2">
+<!-- Primary Action CTA -->
+<button class="w-full h-14 rounded-xl bg-gradient-to-r from-primary-container to-inverse-primary text-on-primary font-headline-sm text-headline-sm font-semibold flex items-center justify-center space-x-2 shadow-[0_0_32px_-8px_rgba(124,111,247,0.45)] hover:opacity-95 active:scale-[0.98] transition-all" type="button">
+<span class="material-symbols-outlined text-[22px]">shield</span>
+<span>Submit Report &amp; Block Number</span>
+</button>
+<!-- Secondary AI Voice Detector Action -->
+<button class="w-full h-12 rounded-xl bg-surface-container-low border border-outline-variant text-on-surface hover:border-primary-container hover:text-primary font-body-lg text-body-lg flex items-center justify-center space-x-2 transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[20px] text-primary">graphic_eq</span>
+<span>Test Call Audio Sample (AI Voice Detector)</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation Anchor (Shared Component: BottomNavBar, Active on 'Report') -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-low/90 dark:bg-surface-container-low/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<!-- Destination 1: Shield -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[24px]">security</span>
+<span class="text-label-caption font-label-caption mt-1">Shield</span>
+</a>
+<!-- Destination 2: Logs -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[24px]">list_alt</span>
+<span class="text-label-caption font-label-caption mt-1">Logs</span>
+</a>
+<!-- Destination 3: Report (ACTIVE STATE) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary py-1 px-3 rounded-lg bg-surface-container-highest/50 active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">gpp_maybe</span>
+<span class="text-label-caption font-label-caption mt-1 font-bold">Report</span>
+</a>
+<!-- Destination 4: Settings -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95" href="#">
+<span class="material-symbols-outlined text-[24px]">tune</span>
+<span class="text-label-caption font-label-caption mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

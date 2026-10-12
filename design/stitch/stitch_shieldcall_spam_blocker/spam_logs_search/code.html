@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Spam Logs &amp; Search - ShieldCall</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#150066",
+            "on-primary-container": "#21008e",
+            "tertiary-fixed-dim": "#ffb95d",
+            "secondary-fixed-dim": "#40e17e",
+            "on-secondary-fixed": "#00210c",
+            "surface": "#12121f",
+            "surface-bright": "#383847",
+            "on-primary-fixed-variant": "#3f2bb8",
+            "on-error": "#690005",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-container-highest": "#343342",
+            "secondary-fixed": "#63ff97",
+            "inverse-surface": "#e3e0f4",
+            "inverse-on-surface": "#2f2f3d",
+            "primary-container": "#8b80ff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "secondary-container": "#00c263",
+            "surface-container-high": "#292937",
+            "on-secondary-container": "#004821",
+            "on-surface": "#e3e0f4",
+            "tertiary-container": "#c98100",
+            "tertiary-fixed": "#ffddb7",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#005226",
+            "on-primary": "#2700a1",
+            "primary": "#c6c0ff",
+            "surface-dim": "#12121f",
+            "on-surface-variant": "#c8c4d6",
+            "primary-fixed": "#e4dfff",
+            "background": "#12121f",
+            "secondary": "#40e17e",
+            "primary-fixed-dim": "#c6c0ff",
+            "surface-container": "#1e1e2c",
+            "outline-variant": "#474554",
+            "error": "#ffb4ab",
+            "surface-tint": "#c6c0ff",
+            "outline": "#928fa0",
+            "surface-container-lowest": "#0d0d1a",
+            "on-tertiary": "#462a00",
+            "surface-container-low": "#1a1a28",
+            "on-secondary": "#003919",
+            "tertiary": "#ffb95d",
+            "on-background": "#e3e0f4",
+            "on-tertiary-container": "#3d2400",
+            "error-container": "#93000a",
+            "surface-variant": "#343342",
+            "inverse-primary": "#5748d0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-tablet": "2rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "gutter-tablet": "1.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-caption": ["Manrope"],
+            "body-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "display": ["Space Grotesk"],
+            "display-mobile": ["Space Grotesk"],
+            "label-badge": ["JetBrains Mono"],
+            "body-md": ["Manrope"],
+            "headline-sm": ["Space Grotesk"],
+            "label-code": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-caption": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "display-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-code": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen pb-24 select-none">
+<!-- Layout Shell Container constrained for mobile/tablet responsive density -->
+<div class="max-w-[540px] mx-auto min-h-screen relative flex flex-col bg-surface-container-lowest shadow-2xl">
+<!-- Top Status Bar (Cyber-defense telemetry strip) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest/85 backdrop-blur-md">
+<!-- Hardware / System Telemetry Indicators -->
+<div class="flex items-center justify-between px-4 pt-2 text-outline text-label-badge font-label-badge">
+<span class="flex items-center gap-1.5">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></span>
+          AI RADAR ACTIVE
+        </span>
+<span class="tracking-widest">LAGOS GATEWAY // SECURE</span>
+</div>
+<!-- App Header: Spam Logs & Search (Matches TopAppBar tokens) -->
+<div class="flex justify-between items-center w-full px-4 h-16">
+<div class="flex items-center gap-3">
+<button aria-label="Go back" class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-on-surface hover:text-primary transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Spam Logs &amp; Search</h1>
+<p class="font-label-caption text-label-caption text-outline">ShieldCall Threat Telemetry</p>
+</div>
+</div>
+<!-- Trailing action: Export / Sync Telemetry -->
+<button aria-label="Export Logs" class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-outline-variant hover:text-primary transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-4 pt-2 pb-6 space-y-4">
+<!-- Fast Search Bar (Tactile Cybernetic Input) -->
+<section aria-label="Search filter" class="relative">
+<div class="relative flex items-center w-full h-[52px] rounded-xl bg-surface-container-low border border-outline-variant/30 focus-within:border-primary-container focus-within:shadow-[0_0_16px_rgba(139,128,255,0.25)] transition-all duration-200">
+<div class="pl-3.5 pr-2 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full bg-transparent border-0 text-on-surface placeholder:text-outline/60 font-body-md text-body-md focus:ring-0 px-0 outline-none" id="logSearchInput" placeholder="Search number, carrier or Lagos prefix (e.g. 0201)..." type="text" value="0201"/>
+<button aria-label="Clear Search" class="pr-3.5 pl-2 text-outline hover:text-on-surface transition-colors flex items-center" id="clearSearchBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+</section>
+<!-- Filter Pills (Horizontal Scrollable Chips) -->
+<section aria-label="Threat vector categories">
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 text-label-badge font-label-badge">
+<!-- Active: All (42) in electric violet -->
+<button class="flex-shrink-0 px-3.5 py-1.5 rounded-full bg-primary-container text-on-primary-fixed font-bold shadow-[0_0_18px_rgba(139,128,255,0.35)] flex items-center gap-1.5 active:scale-95 transition-transform" type="button">
+<span>All</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-lowest/20 text-on-primary-fixed">42</span>
+</button>
+<!-- Blocked (19) - Pill with crimson count -->
+<button class="flex-shrink-0 px-3 py-1.5 rounded-full bg-error-container/20 border border-error/50 text-error flex items-center gap-1.5 hover:bg-error-container/30 active:scale-95 transition-all" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span>Blocked</span>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container/40 text-error font-semibold">19</span>
+</button>
+<!-- Silenced (8) - Pill with amber count -->
+<button class="flex-shrink-0 px-3 py-1.5 rounded-full bg-tertiary-container/20 border border-tertiary/50 text-tertiary flex items-center gap-1.5 hover:bg-tertiary-container/30 active:scale-95 transition-all" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Silenced</span>
+<span class="px-1.5 py-0.2 rounded-full bg-tertiary-container/40 text-tertiary font-semibold">8</span>
+</button>
+<!-- Allowed (15) - Pill with emerald count -->
+<button class="flex-shrink-0 px-3 py-1.5 rounded-full bg-secondary-container/20 border border-secondary/50 text-secondary flex items-center gap-1.5 hover:bg-secondary-container/30 active:scale-95 transition-all" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Allowed</span>
+<span class="px-1.5 py-0.2 rounded-full bg-secondary-container/40 text-secondary font-semibold">15</span>
+</button>
+<!-- Lagos VoIP (12) - Specialized filter pill -->
+<button class="flex-shrink-0 px-3 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/50 text-on-surface-variant flex items-center gap-1.5 hover:text-on-surface active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[14px] text-primary">router</span>
+<span>Lagos VoIP</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-outline">12</span>
+</button>
+</div>
+</section>
+<!-- Active Inspection Drawer / Card Preview (Contextual Telemetry Modal preview) -->
+<section aria-label="Target telemetry inspection" class="rounded-2xl p-4 bg-surface-container-low border border-primary-container/30 shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)] relative overflow-hidden">
+<!-- Ambient vector glow -->
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary-container/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-error-container/30 border border-error/40 text-error font-label-badge text-label-badge">
+              INSPECTION PROTOCOL
+            </span>
+<span class="font-label-code text-label-code text-outline">ROUTE: 02018887766</span>
+</div>
+<span class="material-symbols-outlined text-outline text-[18px]">verified_user</span>
+</div>
+<!-- Telemetry Attributes Bento Grid -->
+<div class="grid grid-cols-2 gap-2.5 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container/70 border border-outline-variant/20">
+<span class="font-label-caption text-label-caption text-outline block mb-1">CARRIER INFRASTRUCTURE</span>
+<p class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[14px]">cell_tower</span>
+              MTN / Spectranet VoIP
+            </p>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container/70 border border-outline-variant/20">
+<span class="font-label-caption text-label-caption text-outline block mb-1">REPUTATION SCORE</span>
+<p class="font-body-sm text-body-sm text-error font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-error text-[14px]">warning</span>
+              Highly Malicious
+            </p>
+</div>
+<div class="col-span-2 p-2.5 rounded-xl bg-surface-container/70 border border-outline-variant/20 flex items-center justify-between">
+<div>
+<span class="font-label-caption text-label-caption text-outline block mb-0.5">COMMUNITY INCIDENT REPORTS</span>
+<p class="font-body-sm text-body-sm text-on-surface">Verified Nigerian Fraud Database</p>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">894</span>
+<span class="font-label-caption text-label-caption text-outline block">Reports (24h)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Log Feed List Header -->
+<div class="flex items-center justify-between pt-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Recent Threat Stream</h2>
+<span class="font-label-caption text-label-caption text-outline uppercase tracking-wider">Filtered: Lagos VoIP / All</span>
+</div>
+<!-- Log Feed List with Rich Telemetry -->
+<section aria-label="Spam log feed" class="space-y-2.5">
+<!-- Log Item 1: Lagos VoIP 0201 888 7766 -->
+<article class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-error/40 transition-all duration-200 shadow-[0_0_24px_-6px_rgba(255,71,87,0.15)] relative overflow-hidden">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<!-- Carrier Security Status Node -->
+<div class="w-10 h-10 rounded-xl bg-error-container/30 border border-error/40 flex items-center justify-center text-error flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">phone_disabled</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">0201 888 7766</span>
+<span class="material-symbols-outlined text-outline text-[16px]">info</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+                  Lagos VoIP • Today, 11:42 AM
+                </p>
+</div>
+</div>
+<!-- Threat Badge -->
+<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error text-error font-label-badge text-label-badge flex-shrink-0">
+              98% Scam Risk
+            </span>
+</div>
+<!-- Log Description Context -->
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<p class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-error text-[16px] flex-shrink-0">report</span>
+<span class="truncate">Reported by 1,420 users as fake loan app</span>
+</p>
+<button aria-label="Block caller" class="text-error hover:underline flex-shrink-0 font-label-caption text-label-caption uppercase tracking-wider pl-2" type="button">
+              Block IP
+            </button>
+</div>
+</article>
+<!-- Log Item 2: +234 901 445 2210 -->
+<article class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-tertiary/40 transition-all duration-200 shadow-[0_0_24px_-6px_rgba(255,165,2,0.12)]">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-tertiary-container/30 border border-tertiary/40 flex items-center justify-center text-tertiary flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">volume_off</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">+234 901 445 2210</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+                  9mobile • Today, 09:15 AM
+                </p>
+</div>
+</div>
+<!-- Silenced Badge -->
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/20 border border-tertiary text-tertiary font-label-badge text-label-badge flex-shrink-0">
+              Auto-Silenced
+            </span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<p class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-tertiary text-[16px] flex-shrink-0">smart_toy</span>
+<span class="truncate">Telemarketing / Crypto bot</span>
+</p>
+<span class="font-label-code text-label-code text-outline text-right">SCORE 74</span>
+</div>
+</article>
+<!-- Log Item 3: 0201 700 9901 -->
+<article class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-error/40 transition-all duration-200">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-error-container/30 border border-error/40 flex items-center justify-center text-error flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">block</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">0201 700 9901</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+                  Lagos Telemarketing • Yesterday
+                </p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error text-error font-label-badge text-label-badge flex-shrink-0">
+              Prefix Blocked
+            </span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<p class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-outline text-[16px] flex-shrink-0">filter_alt</span>
+<span class="truncate">Blocked via rule 0201700*</span>
+</p>
+<span class="font-label-code text-label-code text-outline">RULE #4</span>
+</div>
+</article>
+<!-- Log Item 4: +234 803 123 4567 -->
+<article class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-secondary/40 transition-all duration-200 shadow-[0_0_24px_-6px_rgba(46,213,115,0.12)]">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-container/20 border border-secondary/40 flex items-center justify-center text-secondary flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">+234 803 123 4567</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+                  MTN Nigeria • Yesterday
+                </p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-secondary-container/20 border border-secondary text-secondary font-label-badge text-label-badge flex-shrink-0">
+              Verified Safe
+            </span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<p class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-secondary text-[16px] flex-shrink-0">local_shipping</span>
+<span class="truncate">Known Contact / Delivery</span>
+</p>
+<span class="font-label-code text-label-code text-secondary">ALLOWLIST</span>
+</div>
+</article>
+<!-- Log Item 5: +44 7911 123456 -->
+<article class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-error/40 transition-all duration-200 shadow-[0_0_24px_-6px_rgba(255,71,87,0.15)]">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-xl bg-error-container/30 border border-error/40 flex items-center justify-center text-error flex-shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">public_off</span>
+</div>
+<div class="space-y-0.5">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">+44 7911 123456</span>
+</div>
+<p class="font-body-sm text-body-sm text-outline">
+                  UK International • 2 days ago
+                </p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-error-container/20 border border-error text-error font-label-badge text-label-badge flex-shrink-0">
+              Spoofed VoIP
+            </span>
+</div>
+<div class="mt-3 pt-2.5 border-t border-outline-variant/20 flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<p class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-error text-[16px] flex-shrink-0">phone_callback</span>
+<span class="truncate">One-ring scam (Wangiri)</span>
+</p>
+<span class="font-label-code text-label-code text-error font-semibold">HIGH RISK</span>
+</div>
+</article>
+</section>
+<!-- Threat Telemetry Status Banner -->
+<section class="p-3.5 rounded-xl bg-surface-container border border-outline-variant/30 flex items-center justify-between text-outline">
+<div class="flex items-center gap-2 font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[16px] text-primary">security_update_good</span>
+<span>DATABASE REVISION 44.9.1</span>
+</div>
+<span class="font-label-caption text-label-caption text-primary">100% IN SYNC</span>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Constructed according to Shared Components JSON, mapped to 'Logs' active tab) -->
+<!-- JSON Blueprint: BottomNavBar with 4 destinations: Shield, Logs, Report, Settings. Active: Logs -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-low/90 dark:bg-surface-container-low/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)] max-w-[540px] left-1/2 -translate-x-1/2">
+<!-- Item 1: Shield (Inactive) -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]">security</span>
+<span class="font-label-caption text-label-caption mt-1">Shield</span>
+</a>
+<!-- Item 2: Logs (ACTIVE TAB per page intent: Spam Logs & Search) -->
+<a aria-current="page" class="flex flex-col items-center justify-center text-primary dark:text-primary py-1 px-3 rounded-lg bg-surface-container-highest/50 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">list_alt</span>
+<span class="font-label-caption text-label-caption mt-1 font-bold">Logs</span>
+</a>
+<!-- Item 3: Report (Inactive) -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]">gpp_maybe</span>
+<span class="font-label-caption text-label-caption mt-1">Report</span>
+</a>
+<!-- Item 4: Settings (Inactive) -->
+<a class="flex flex-col items-center justify-center text-outline dark:text-outline py-1 px-3 hover:text-on-surface dark:hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-[22px]">tune</span>
+<span class="font-label-caption text-label-caption mt-1">Settings</span>
+</a>
+</nav>
+</div>
+<!-- Search Interactivity Script -->
+<script>
+    const searchInput = document.getElementById('logSearchInput');
+    const clearBtn = document.getElementById('clearSearchBtn');
+
+    if (searchInput && clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+      });
+    }
+  </script>
+</body></html>

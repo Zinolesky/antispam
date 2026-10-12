@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShieldCall - Settings &amp; Rules</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#150066",
+            "on-primary-container": "#21008e",
+            "tertiary-fixed-dim": "#ffb95d",
+            "secondary-fixed-dim": "#40e17e",
+            "on-secondary-fixed": "#00210c",
+            "surface": "#12121f",
+            "surface-bright": "#383847",
+            "on-primary-fixed-variant": "#3f2bb8",
+            "on-error": "#690005",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-container-highest": "#343342",
+            "secondary-fixed": "#63ff97",
+            "inverse-surface": "#e3e0f4",
+            "inverse-on-surface": "#2f2f3d",
+            "primary-container": "#8b80ff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "secondary-container": "#00c263",
+            "surface-container-high": "#292937",
+            "on-secondary-container": "#004821",
+            "on-surface": "#e3e0f4",
+            "tertiary-container": "#c98100",
+            "tertiary-fixed": "#ffddb7",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#005226",
+            "on-primary": "#2700a1",
+            "primary": "#c6c0ff",
+            "surface-dim": "#12121f",
+            "on-surface-variant": "#c8c4d6",
+            "primary-fixed": "#e4dfff",
+            "background": "#12121f",
+            "secondary": "#40e17e",
+            "primary-fixed-dim": "#c6c0ff",
+            "surface-container": "#1e1e2c",
+            "outline-variant": "#474554",
+            "error": "#ffb4ab",
+            "surface-tint": "#c6c0ff",
+            "outline": "#928fa0",
+            "surface-container-lowest": "#0d0d1a",
+            "on-tertiary": "#462a00",
+            "surface-container-low": "#1a1a28",
+            "on-secondary": "#003919",
+            "tertiary": "#ffb95d",
+            "on-background": "#e3e0f4",
+            "on-tertiary-container": "#3d2400",
+            "error-container": "#93000a",
+            "surface-variant": "#343342",
+            "inverse-primary": "#5748d0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-tablet": "2rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "gutter-tablet": "1.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-caption": ["Manrope"],
+            "body-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "display": ["Space Grotesk"],
+            "display-mobile": ["Space Grotesk"],
+            "label-badge": ["JetBrains Mono"],
+            "body-md": ["Manrope"],
+            "headline-sm": ["Space Grotesk"],
+            "label-code": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-caption": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "display-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-code": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-fixed min-h-screen pb-24">
+<!-- Top App Bar (Shared Component Anchor) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest/85 backdrop-blur-md">
+<div class="flex justify-between items-center w-full px-4 h-16 max-w-2xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="shield">shield</span>
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight">ShieldCall</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-label-badge font-label-badge text-secondary border border-secondary/30 bg-secondary/10 px-2 py-0.5 rounded-full">v4.2 PRO</span>
+<button aria-label="Sync status" class="text-on-surface-variant hover:text-primary transition-colors duration-150 active:scale-95 p-1 rounded-full" id="header-sync-btn">
+<span class="material-symbols-outlined text-xl transition-transform duration-700" data-icon="sync">sync</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Viewport Canvas -->
+<main class="max-w-2xl mx-auto px-4 pt-2 pb-8 space-y-6">
+<!-- Screen Title Area -->
+<div class="flex items-center justify-between pt-1">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">Shield Settings &amp; Rules</h1>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Real-time telecommunications filter &amp; encrypted ruleset sync</p>
+</div>
+<div class="h-8 w-8 rounded-full bg-surface-container-high flex items-center justify-center border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="tune">tune</span>
+</div>
+</div>
+<!-- Cloud Account Card (Zero-Friction Sync Bento) -->
+<section class="bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 rounded-2xl p-5 shadow-[0_12px_32px_-4px_rgba(0,0,0,0.65)] relative overflow-hidden">
+<!-- Glow Accent Field -->
+<div class="absolute -top-12 -right-12 w-36 h-36 bg-primary-container/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex items-center justify-between gap-2 mb-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 border border-secondary/30">
+<span class="text-xs">☁️</span>
+<span class="text-label-badge font-label-badge text-secondary">Synced Across Devices</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-label-caption font-label-caption text-secondary">SHIELD NETWORK ONLINE</span>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-outline-variant/20">
+<div class="flex items-center gap-3">
+<div class="w-11 h-11 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/40 text-primary">
+<span class="material-symbols-outlined text-2xl" data-icon="cloud_done">cloud_done</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-body-lg font-body-lg text-on-surface font-semibold tracking-tight">efezino.dev@gmail.com</span>
+</div>
+<div class="flex items-center gap-2 mt-0.5">
+<span class="text-label-badge font-label-badge text-primary bg-primary/10 border border-primary/25 px-1.5 py-0.2 rounded">Shield Pro Active</span>
+<span class="text-body-sm font-body-sm text-outline">• Tier 1 Priority</span>
+</div>
+</div>
+</div>
+<!-- Sync Button CTA -->
+<button class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-container text-on-primary-fixed font-headline-sm text-sm font-semibold hover:bg-primary-fixed transition-all duration-150 active:scale-95 shadow-[0_0_24px_-4px_rgba(139,128,255,0.35)]" id="sync-now-btn">
+<span class="material-symbols-outlined text-lg" data-icon="sync" id="sync-icon">sync</span>
+<span>Sync Blocklists Now</span>
+</button>
+</div>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pt-3 gap-2">
+<div class="flex items-center gap-1.5 text-body-sm font-body-sm text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span>Last synced 4 mins ago</span>
+<span class="text-outline-variant">•</span>
+<span class="text-label-code font-label-code text-on-surface-variant">Hash: 8f9b..c2e1</span>
+</div>
+<!-- Guest Switch Toggle Alternatives -->
+<div class="flex items-center gap-2">
+<span class="text-label-caption font-label-caption text-outline uppercase tracking-wider">Alt link:</span>
+<button class="text-label-badge font-label-badge text-on-surface-variant hover:text-on-surface px-2 py-1 rounded bg-surface-container border border-outline-variant/30 transition-colors">
+            Google
+          </button>
+<button class="text-label-badge font-label-badge text-on-surface-variant hover:text-on-surface px-2 py-1 rounded bg-surface-container border border-outline-variant/30 transition-colors">
+            Apple ID
+          </button>
+</div>
+</div>
+</section>
+<!-- System Call Screening Status Card -->
+<section class="bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 rounded-2xl p-5 space-y-4">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-secondary/10 border border-secondary/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">System Telecom Integration</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Android Telecom Call Screening Role status</p>
+</div>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary/15 border border-secondary/40 text-secondary">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span class="text-label-badge font-label-badge font-bold">ACTIVE (Default Screening App)</span>
+</div>
+</div>
+<div class="space-y-3 pt-2">
+<!-- Toggle Item 1 -->
+<div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-colors">
+<div class="pr-3">
+<div class="text-body-lg font-body-lg text-on-surface font-semibold">Silence Unknown International Callers</div>
+<div class="text-body-sm font-body-sm text-outline mt-0.5">Mute ringers immediately if the caller's country code differs from local SIM.</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container shadow-inner"></div>
+</label>
+</div>
+<!-- Toggle Item 2 -->
+<div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-colors">
+<div class="pr-3">
+<div class="text-body-lg font-body-lg text-on-surface font-semibold">Auto-Drop 90%+ Scam Risk Calls</div>
+<div class="text-body-sm font-body-sm text-outline mt-0.5">Disconnect robocallers before handset wake-up via ShieldCall AI heuristics.</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container shadow-inner"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Special Feature: Prefix Rule Engine -->
+<section class="bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 rounded-2xl p-5 space-y-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<h2 class="text-headline-sm font-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="dialpad">dialpad</span>
+<span>Blocked Number Prefixes (Area / VoIP Ranges)</span>
+</h2>
+<span class="text-label-badge font-label-badge text-primary bg-primary/10 border border-primary/30 px-2 py-0.5 rounded">3 Active Rules</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+          Instantly drop all calls starting with known spam robocall centers before they ring.
+        </p>
+</div>
+<!-- Quick Add Prefix Form -->
+<div class="p-3 bg-surface-container-lowest/80 border border-outline-variant/30 rounded-xl space-y-2">
+<div class="flex flex-col sm:flex-row gap-2">
+<div class="relative flex-1">
+<span class="absolute left-3.5 top-3.5 material-symbols-outlined text-outline text-lg" data-icon="add_call">add_call</span>
+<input class="w-full h-11 pl-10 pr-3 rounded-lg bg-surface-container border border-outline-variant/40 text-on-surface placeholder:text-outline/60 text-body-md font-label-code focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" id="prefix-input" placeholder="+ Add Prefix (e.g. 0201888 or +234201)" type="text"/>
+</div>
+<button class="h-11 px-5 rounded-lg bg-primary-container text-on-primary-fixed font-headline-sm text-sm font-semibold hover:bg-primary transition-all active:scale-95 flex items-center justify-center gap-1.5 shrink-0" id="add-rule-btn">
+<span class="material-symbols-outlined text-base" data-icon="add_circle">add_circle</span>
+<span>Add Rule</span>
+</button>
+</div>
+</div>
+<!-- Active Prefix Rules List -->
+<div class="space-y-2.5 pt-1" id="prefix-list">
+<!-- Rule 1 -->
+<div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-all">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-error-container/30 border border-error/30 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base" data-icon="block">block</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-label-code font-label-code text-on-surface font-bold text-sm tracking-wide">0201888*</span>
+<span class="text-label-badge font-label-badge text-error bg-error/10 border border-error/25 px-1.5 py-0.2 rounded">VoIP Range</span>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant">Lagos Telemarketing &amp; Automated VoIP</div>
+<div class="text-label-caption font-label-caption text-outline mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-error" data-icon="shield_with_heart">shield_with_heart</span>
+<span>18 calls blocked this week</span>
+</div>
+</div>
+</div>
+<button aria-label="Remove rule" class="delete-rule-btn text-outline hover:text-error transition-colors p-2 rounded-lg hover:bg-surface-container-high active:scale-95">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Rule 2 -->
+<div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-all">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-error-container/30 border border-error/30 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base" data-icon="block">block</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-label-code font-label-code text-on-surface font-bold text-sm tracking-wide">0201700*</span>
+<span class="text-label-badge font-label-badge text-error bg-error/10 border border-error/25 px-1.5 py-0.2 rounded">Call Center</span>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant">VoIP Call Center Range</div>
+<div class="text-label-caption font-label-caption text-outline mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-error" data-icon="shield_with_heart">shield_with_heart</span>
+<span>9 calls blocked</span>
+</div>
+</div>
+</div>
+<button aria-label="Remove rule" class="delete-rule-btn text-outline hover:text-error transition-colors p-2 rounded-lg hover:bg-surface-container-high active:scale-95">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+<!-- Rule 3 -->
+<div class="flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-all">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-error-container/30 border border-error/30 text-error flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-base" data-icon="block">block</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-label-code font-label-code text-on-surface font-bold text-sm tracking-wide">+91 800*</span>
+<span class="text-label-badge font-label-badge text-tertiary bg-tertiary/10 border border-tertiary/25 px-1.5 py-0.2 rounded">Phishing Ring</span>
+</div>
+<div class="text-body-sm font-body-sm text-on-surface-variant">Known Offshore Phishing</div>
+<div class="text-label-caption font-label-caption text-outline mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="shield_with_heart">shield_with_heart</span>
+<span>3 calls blocked</span>
+</div>
+</div>
+</div>
+<button aria-label="Remove rule" class="delete-rule-btn text-outline hover:text-error transition-colors p-2 rounded-lg hover:bg-surface-container-high active:scale-95">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Personal Block List Management Card -->
+<section class="bg-surface-container-low/90 backdrop-blur-xl border border-outline-variant/30 rounded-2xl p-5 space-y-4">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface">Personal Block List (28 numbers)</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Explicitly quarantined phone numbers and custom blacklist overrides</p>
+</div>
+<button class="text-label-badge font-label-badge text-primary hover:underline px-2 py-1">View All</button>
+</div>
+<!-- Search / Add single number -->
+<div class="relative">
+<span class="absolute left-3.5 top-3.5 material-symbols-outlined text-outline text-lg" data-icon="person_search">person_search</span>
+<input class="w-full h-11 pl-10 pr-24 rounded-xl bg-surface-container border border-outline-variant/40 text-on-surface placeholder:text-outline/60 text-body-md font-label-code focus:outline-none focus:border-primary" placeholder="Search quarantined numbers or enter +..." type="text"/>
+<button class="absolute right-1.5 top-1.5 h-8 px-3 rounded-lg bg-surface-container-highest text-on-surface font-label-badge text-xs hover:bg-surface-bright transition-colors active:scale-95">
+          + Block
+        </button>
+</div>
+<!-- Sample Entries -->
+<div class="space-y-2 pt-1" id="personal-blocklist">
+<!-- Entry 1 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container/40 border border-outline-variant/20 hover:border-outline-variant/30 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="phone_disabled">phone_disabled</span>
+</div>
+<div>
+<div class="text-body-lg font-body-lg text-on-surface font-semibold font-label-code text-sm">+234 809 999 1122</div>
+<div class="text-label-caption font-label-caption text-outline">Flagged: Unsolicited Financial Loan SMS/Call</div>
+</div>
+</div>
+<button class="unblock-btn text-body-sm font-body-sm text-primary hover:text-primary-fixed underline transition-colors px-2 py-1 active:scale-95">
+            Unblock
+          </button>
+</div>
+<!-- Entry 2 -->
+<div class="flex items-center justify-between p-3 rounded-xl bg-surface-container/40 border border-outline-variant/20 hover:border-outline-variant/30 transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-sm" data-icon="phone_disabled">phone_disabled</span>
+</div>
+<div>
+<div class="text-body-lg font-body-lg text-on-surface font-semibold font-label-code text-sm">+234 705 444 3321</div>
+<div class="text-label-caption font-label-caption text-outline">Flagged: Persistent Telemarketer</div>
+</div>
+</div>
+<button class="unblock-btn text-body-sm font-body-sm text-primary hover:text-primary-fixed underline transition-colors px-2 py-1 active:scale-95">
+            Unblock
+          </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Shared Component Anchor) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-low/90 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<!-- Tab: Shield -->
+<a class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95" href="#shield">
+<span class="material-symbols-outlined text-2xl" data-icon="security">security</span>
+<span class="text-label-caption font-label-caption mt-0.5">Shield</span>
+</a>
+<!-- Tab: Logs -->
+<a class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95" href="#logs">
+<span class="material-symbols-outlined text-2xl" data-icon="list_alt">list_alt</span>
+<span class="text-label-caption font-label-caption mt-0.5">Logs</span>
+</a>
+<!-- Tab: Report -->
+<a class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95" href="#report">
+<span class="material-symbols-outlined text-2xl" data-icon="gpp_maybe">gpp_maybe</span>
+<span class="text-label-caption font-label-caption mt-0.5">Report</span>
+</a>
+<!-- Tab: Settings (Active Destination) -->
+<a class="flex flex-col items-center justify-center text-primary py-1 px-3 rounded-lg bg-surface-container-highest/50 active:scale-95 transition-transform duration-150" href="#settings">
+<span class="material-symbols-outlined text-2xl" data-icon="tune">tune</span>
+<span class="text-label-caption font-label-caption mt-0.5">Settings</span>
+</a>
+</nav>
+<!-- Lightweight Micro-Interactions -->
+<script>
+    // Sync Button spin animation
+    const syncBtn = document.getElementById('sync-now-btn');
+    const syncIcon = document.getElementById('sync-icon');
+    const headerSyncBtn = document.getElementById('header-sync-btn');
+
+    function triggerSyncAnimation() {
+      syncIcon.classList.add('animate-spin');
+      if (headerSyncBtn) {
+        headerSyncBtn.querySelector('.material-symbols-outlined').classList.add('animate-spin');
+      }
+      setTimeout(() => {
+        syncIcon.classList.remove('animate-spin');
+        if (headerSyncBtn) {
+          headerSyncBtn.querySelector('.material-symbols-outlined').classList.remove('animate-spin');
+        }
+      }, 1500);
+    }
+
+    if (syncBtn) {
+      syncBtn.addEventListener('click', triggerSyncAnimation);
+    }
+    if (headerSyncBtn) {
+      headerSyncBtn.addEventListener('click', triggerSyncAnimation);
+    }
+
+    // Prefix Rule Addition Simulation
+    const addRuleBtn = document.getElementById('add-rule-btn');
+    const prefixInput = document.getElementById('prefix-input');
+    const prefixList = document.getElementById('prefix-list');
+
+    if (addRuleBtn && prefixInput && prefixList) {
+      addRuleBtn.addEventListener('click', () => {
+        const val = prefixInput.value.trim();
+        if (!val) return;
+
+        const newRule = document.createElement('div');
+        newRule.className = "flex items-center justify-between p-3.5 rounded-xl bg-surface-container/60 border border-outline-variant/20 hover:border-outline-variant/40 transition-all";
+        newRule.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-error-container/30 border border-error/30 text-error flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-base" data-icon="block">block</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-label-code font-label-code text-on-surface font-bold text-sm tracking-wide">${val}*</span>
+                <span class="text-label-badge font-label-badge text-error bg-error/10 border border-error/25 px-1.5 py-0.2 rounded">Custom Rule</span>
+              </div>
+              <div class="text-body-sm font-body-sm text-on-surface-variant">User Defined Prefix Filter</div>
+              <div class="text-label-caption font-label-caption text-secondary mt-0.5 flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs text-secondary" data-icon="check_circle">check_circle</span>
+                <span>Active Protection</span>
+              </div>
+            </div>
+          </div>
+          <button class="delete-rule-btn text-outline hover:text-error transition-colors p-2 rounded-lg hover:bg-surface-container-high active:scale-95" aria-label="Remove rule">
+            <span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+          </button>
+        `;
+        prefixList.prepend(newRule);
+        prefixInput.value = '';
+
+        // Wire delete for new rule
+        newRule.querySelector('.delete-rule-btn').addEventListener('click', () => {
+          newRule.remove();
+        });
+      });
+    }
+
+    // Delete Prefix Rules
+    document.querySelectorAll('.delete-rule-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const row = e.target.closest('.delete-rule-btn').parentElement;
+        if (row) row.remove();
+      });
+    });
+
+    // Unblock Buttons
+    document.querySelectorAll('.unblock-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const entry = e.target.closest('.p-3');
+        if (entry) {
+          entry.style.opacity = '0.3';
+          btn.textContent = 'Unblocked';
+          btn.classList.remove('underline');
+          btn.disabled = true;
+        }
+      });
+    });
+  </script>
+</body></html>

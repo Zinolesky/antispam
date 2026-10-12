@@ -1,0 +1,123 @@
+networks:
+  antispam_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  # ── PostgreSQL 16 ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: antispam_postgres
+    restart: unless-stopped
+    networks: [antispam_net]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis 7 ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: antispam_redis
+    restart: unless-stopped
+    networks: [antispam_net]
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI (Python) ──────────────────────────────────────────────────────────
+  fastapi:
+    build:
+      context: ../backend/fastapi
+      dockerfile: Dockerfile
+    container_name: antispam_fastapi
+    restart: unless-stopped
+    networks: [antispam_net]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      REDIS_URL: redis://${REDIS_HOST}:${REDIS_PORT}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ../backend/fastapi:/app  # hot-reload in dev
+
+  # ── Go Sync Service ───────────────────────────────────────────────────────────
+  go-sync:
+    build:
+      context: ../backend/go-sync
+      dockerfile: Dockerfile
+    container_name: antispam_go_sync
+    restart: unless-stopped
+    networks: [antispam_net]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      REDIS_URL: redis://${REDIS_HOST}:${REDIS_PORT}
+      PORT: ${GO_SYNC_PORT}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Nginx (Load Balancer / Reverse Proxy) ─────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: antispam_nginx
+    restart: unless-stopped
+    networks: [antispam_net]
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "8088:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - fastapi
+      - go-sync
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3

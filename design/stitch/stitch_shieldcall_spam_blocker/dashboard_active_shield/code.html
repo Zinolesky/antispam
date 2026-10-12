@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShieldCall - AI Defense Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Manrope:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-primary-fixed": "#150066",
+            "on-primary-container": "#21008e",
+            "tertiary-fixed-dim": "#ffb95d",
+            "secondary-fixed-dim": "#40e17e",
+            "on-secondary-fixed": "#00210c",
+            "surface": "#12121f",
+            "surface-bright": "#383847",
+            "on-primary-fixed-variant": "#3f2bb8",
+            "on-error": "#690005",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-container-highest": "#343342",
+            "secondary-fixed": "#63ff97",
+            "inverse-surface": "#e3e0f4",
+            "inverse-on-surface": "#2f2f3d",
+            "primary-container": "#8b80ff",
+            "on-tertiary-fixed-variant": "#653e00",
+            "secondary-container": "#00c263",
+            "surface-container-high": "#292937",
+            "on-secondary-container": "#004821",
+            "on-surface": "#e3e0f4",
+            "tertiary-container": "#c98100",
+            "tertiary-fixed": "#ffddb7",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed-variant": "#005226",
+            "on-primary": "#2700a1",
+            "primary": "#c6c0ff",
+            "surface-dim": "#12121f",
+            "on-surface-variant": "#c8c4d6",
+            "primary-fixed": "#e4dfff",
+            "background": "#12121f",
+            "secondary": "#40e17e",
+            "primary-fixed-dim": "#c6c0ff",
+            "surface-container": "#1e1e2c",
+            "outline-variant": "#474554",
+            "error": "#ffb4ab",
+            "surface-tint": "#c6c0ff",
+            "outline": "#928fa0",
+            "surface-container-lowest": "#0d0d1a",
+            "on-tertiary": "#462a00",
+            "surface-container-low": "#1a1a28",
+            "on-secondary": "#003919",
+            "tertiary": "#ffb95d",
+            "on-background": "#e3e0f4",
+            "on-tertiary-container": "#3d2400",
+            "error-container": "#93000a",
+            "surface-variant": "#343342",
+            "inverse-primary": "#5748d0"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-xl": "2rem",
+            "margin-tablet": "2rem",
+            "margin": "1rem",
+            "space-md": "1rem",
+            "gutter-tablet": "1.5rem",
+            "space-lg": "1.5rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "label-caption": ["Manrope"],
+            "body-sm": ["Manrope"],
+            "body-lg": ["Manrope"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-md": ["Space Grotesk"],
+            "display": ["Space Grotesk"],
+            "display-mobile": ["Space Grotesk"],
+            "label-badge": ["JetBrains Mono"],
+            "body-md": ["Manrope"],
+            "headline-sm": ["Space Grotesk"],
+            "label-code": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "label-caption": ["10px", { "lineHeight": "12px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+            "display-mobile": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-badge": ["11px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-code": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .custom-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulse-emerald {
+      0%, 100% {
+        box-shadow: 0 0 20px -4px rgba(64, 225, 126, 0.45), inset 0 0 12px rgba(64, 225, 126, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 35px 2px rgba(64, 225, 126, 0.75), inset 0 0 20px rgba(64, 225, 126, 0.4);
+      }
+    }
+    .animate-pulse-emerald {
+      animation: pulse-emerald 2.8s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex justify-center selection:bg-primary-container selection:text-on-primary-container">
+<!-- Main Mobile App Shell (Simulated Framed Canvas) -->
+<div class="relative w-full max-w-[440px] min-h-screen bg-surface-container-lowest flex flex-col shadow-2xl overflow-x-hidden border-x border-outline-variant/20">
+<!-- Ambient Telemetry Radial Glows -->
+<div class="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-primary-container/15 blur-[100px] rounded-full"></div>
+<div class="pointer-events-none absolute top-48 -right-20 w-64 h-64 bg-secondary/10 blur-[90px] rounded-full"></div>
+<!-- 1. System Status Bar -->
+<header class="w-full pt-3 px-6 pb-2 flex justify-between items-center z-40 bg-surface-container-lowest/90 backdrop-blur-md select-none">
+<span class="font-headline-sm text-body-md font-semibold tracking-tight text-on-surface">9:41</span>
+<div class="flex items-center space-x-2 text-on-surface">
+<span class="material-symbols-outlined text-body-md">signal_cellular_alt</span>
+<span class="font-label-badge text-label-badge tracking-wider font-bold">5G</span>
+<span class="material-symbols-outlined text-body-md">battery_full</span>
+</div>
+</header>
+<!-- 2. TopAppBar (Shared Component Implementation) -->
+<div class="bg-surface-container-lowest/85 backdrop-blur-md text-primary flex justify-between items-center w-full px-4 h-16 z-30 sticky top-0">
+<div class="flex items-center space-x-2.5">
+<div class="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center border border-outline-variant/40 shadow-inner">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="shield">shield</span>
+</div>
+<div class="flex flex-col">
+<span class="text-headline-sm font-headline-sm font-bold text-on-surface tracking-tight leading-none">ShieldCall</span>
+<span class="text-label-badge font-label-badge text-outline text-[9px] tracking-widest mt-0.5">TELECOM DEFENSE</span>
+</div>
+</div>
+<!-- Trailing Action / Refresh Sync -->
+<button aria-label="Sync network database" class="w-9 h-9 rounded-xl bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-primary transition-all duration-150 active:scale-95 group" id="refreshBtn" onclick="handleSyncAnimation()">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-transform duration-500" data-icon="sync" id="syncIcon">sync</span>
+</button>
+</div>
+<!-- 3. Dynamic Context Greeting & Live Sync Pill -->
+<div class="px-4 pt-3 pb-2 flex items-center justify-between">
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">Hey, Efezino! 👋</h1>
+<p class="font-body-sm text-body-sm text-outline mt-0.5">Telecom perimeter protected</p>
+</div>
+<!-- Live Sync Capsule -->
+<div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-surface-container-low border border-outline-variant/30 shadow-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-label-badge text-label-badge text-on-surface-variant text-[10px]">Synced 12:29 pm</span>
+</div>
+</div>
+<!-- 4. Scrollable Core Content Canvas -->
+<main class="flex-1 px-4 pb-28 pt-2 space-y-4 overflow-y-auto custom-scroll z-10">
+<!-- Hero Status Shield Card -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-container-low border border-outline-variant/40 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.45)]">
+<!-- Ambient Internal Vector Halo -->
+<div class="pointer-events-none absolute top-0 right-0 w-36 h-36 bg-secondary/15 rounded-full blur-2xl"></div>
+<div class="pointer-events-none absolute bottom-0 left-0 w-28 h-28 bg-primary/10 rounded-full blur-xl"></div>
+<div class="relative z-10 flex flex-col space-y-4">
+<!-- Top Row: Micro-Badge & On-Device Toggle -->
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container/15 border border-secondary text-secondary">
+<span class="material-symbols-outlined text-xs leading-none" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-label-badge text-label-badge tracking-wider font-semibold">ON-DEVICE GUARD</span>
+</div>
+<!-- Custom Cyber Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="shieldToggle" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-container after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary shadow-inner"></div>
+</label>
+</div>
+<!-- Middle: Center Shield Telemetry -->
+<div class="flex items-center space-x-4 pt-1">
+<div class="relative flex-shrink-0">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-lowest border border-secondary/50 flex items-center justify-center animate-pulse-emerald text-secondary">
+<span class="material-symbols-outlined text-3xl" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">Spam Screening Active</h2>
+<p class="font-body-sm text-body-sm text-outline mt-0.5 leading-snug">
+                Incoming calls are being screened in real-time by on-device AI.
+              </p>
+</div>
+</div>
+<!-- Bottom Micro Status Bar -->
+<div class="pt-2 border-t border-outline-variant/30 flex items-center justify-between text-on-surface-variant font-body-sm text-body-sm">
+<div class="flex items-center space-x-1.5">
+<span class="material-symbols-outlined text-sm text-secondary">memory</span>
+<span class="font-label-badge text-label-badge text-outline">Neural Engine: Active</span>
+</div>
+<div class="flex items-center space-x-1 font-label-badge text-label-badge text-secondary font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>0ms Latency</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Daily Metrics Row: 3 Modular Bento Stat Cards -->
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Metric 1: Screened -->
+<div class="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3 flex flex-col justify-between hover:border-primary/50 transition-all">
+<div class="flex items-center justify-between">
+<span class="font-label-badge text-label-caption text-outline uppercase tracking-wider">Screened</span>
+<span class="material-symbols-outlined text-primary text-sm">filter_alt</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-md text-headline-md font-bold text-on-surface block tracking-tight">14</span>
+<span class="font-label-caption text-label-caption text-primary font-semibold">Today Total</span>
+</div>
+</div>
+<!-- Metric 2: Blocked -->
+<div class="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3 flex flex-col justify-between hover:border-error/50 transition-all shadow-[0_0_16px_-6px_rgba(255,71,87,0.25)]">
+<div class="flex items-center justify-between">
+<span class="font-label-badge text-label-caption text-error uppercase tracking-wider">Blocked</span>
+<span class="material-symbols-outlined text-error text-sm">block</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-md text-headline-md font-bold text-error block tracking-tight">3</span>
+<span class="font-label-caption text-label-caption text-error/80 font-semibold">Threats Cut</span>
+</div>
+</div>
+<!-- Metric 3: Allowed -->
+<div class="relative rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3 flex flex-col justify-between hover:border-secondary/50 transition-all shadow-[0_0_16px_-6px_rgba(46,213,115,0.2)]">
+<div class="flex items-center justify-between">
+<span class="font-label-badge text-label-caption text-secondary uppercase tracking-wider">Allowed</span>
+<span class="material-symbols-outlined text-secondary text-sm">call</span>
+</div>
+<div class="mt-2">
+<span class="font-headline-md text-headline-md font-bold text-secondary block tracking-tight">11</span>
+<span class="font-label-caption text-label-caption text-secondary/80 font-semibold">Safe Routed</span>
+</div>
+</div>
+</div>
+<!-- Feed Section Header -->
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center space-x-2">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface tracking-tight">Recent Screened Calls</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-badge text-label-badge">4 NEW</span>
+</div>
+<button class="font-body-sm text-body-sm font-semibold text-primary hover:text-primary-fixed transition-colors flex items-center space-x-0.5">
+<span>View All</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<!-- Call Screening Feed List (Interactive Cards) -->
+<div class="space-y-2">
+<!-- Feed Card 1: MTN Allowed -->
+<div class="group cursor-pointer rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3.5 flex items-center justify-between hover:bg-surface-container transition-all active:scale-[0.99]" onclick="openBottomSheet('+234 816 205 1907', 'MTN Nigeria • 2m ago', 'Allowed Call')">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/40 flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-body-lg font-bold text-on-surface tracking-tight truncate">+234 816 205 1907</div>
+<div class="font-body-sm text-body-sm text-outline truncate flex items-center space-x-1">
+<span>MTN Nigeria</span>
+<span class="text-[8px]">•</span>
+<span>2m ago</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0 space-y-1">
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-secondary/10 border border-secondary text-secondary">ALLOWED</span>
+<span class="font-label-code text-[11px] text-outline">Score 0.02</span>
+</div>
+</div>
+<!-- Feed Card 2: VoIP Telemarketer Blocked -->
+<div class="group cursor-pointer rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3.5 flex items-center justify-between hover:bg-surface-container transition-all active:scale-[0.99] shadow-[0_0_18px_-8px_rgba(255,71,87,0.35)]" onclick="openBottomSheet('0201 888 1234', 'VoIP Lagos Telemarketer • 18m ago', 'High Frequency Robocall')">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-error/10 border border-error/50 flex items-center justify-center text-error flex-shrink-0">
+<span class="material-symbols-outlined text-lg">phone_disabled</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-body-lg font-bold text-on-surface tracking-tight truncate">0201 888 1234</div>
+<div class="font-body-sm text-body-sm text-error/90 truncate flex items-center space-x-1">
+<span>VoIP Lagos Telemarketer</span>
+<span class="text-[8px]">•</span>
+<span>18m ago</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0 space-y-1">
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-error/10 border border-error text-error">BLOCKED (99% Spam)</span>
+<span class="font-label-code text-[11px] text-error font-semibold">Threat: Critical</span>
+</div>
+</div>
+<!-- Feed Card 3: Fake Bank OTP Scam (Target for detail trigger) -->
+<div class="group cursor-pointer rounded-2xl bg-surface-container-low border border-error/40 p-3.5 flex items-center justify-between hover:bg-surface-container transition-all active:scale-[0.99] shadow-[0_0_24px_-6px_rgba(255,71,87,0.4)]" onclick="openBottomSheet('+234 703 911 0042', 'Fake Bank OTP Scam • Suspected Fraud', 'Critical Financial Phishing Attempt')">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-error-container/40 border border-error flex items-center justify-center text-error flex-shrink-0">
+<span class="material-symbols-outlined text-lg">gpp_bad</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-body-lg font-bold text-on-surface tracking-tight truncate">+234 703 911 0042</div>
+<div class="font-body-sm text-body-sm text-error truncate flex items-center space-x-1">
+<span>Fake Bank OTP Scam</span>
+<span class="text-[8px]">•</span>
+<span>1h ago</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0 space-y-1">
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-error/15 border border-error text-error font-bold">REJECTED 100%</span>
+<span class="font-label-code text-[11px] text-error font-semibold">Sim Spoof</span>
+</div>
+</div>
+<!-- Feed Card 4: Airtel Allowed -->
+<div class="group cursor-pointer rounded-2xl bg-surface-container-low border border-outline-variant/30 p-3.5 flex items-center justify-between hover:bg-surface-container transition-all active:scale-[0.99]" onclick="openBottomSheet('+234 802 334 8819', 'Airtel Nigeria • 3h ago', 'Allowed Call')">
+<div class="flex items-center space-x-3 min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary/10 border border-secondary/40 flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="min-w-0">
+<div class="font-headline-sm text-body-lg font-bold text-on-surface tracking-tight truncate">+234 802 334 8819</div>
+<div class="font-body-sm text-body-sm text-outline truncate flex items-center space-x-1">
+<span>Airtel Nigeria</span>
+<span class="text-[8px]">•</span>
+<span>3h ago</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end flex-shrink-0 space-y-1">
+<span class="font-label-badge text-label-badge px-2 py-0.5 rounded-full bg-secondary/10 border border-secondary text-secondary">ALLOWED</span>
+<span class="font-label-code text-[11px] text-outline">Verified Contact</span>
+</div>
+</div>
+</div>
+<!-- Quick Helper Caption -->
+<div class="pt-1 pb-3 text-center">
+<p class="font-body-sm text-body-sm text-outline flex items-center justify-center space-x-1">
+<span>💡</span>
+<span>Tap or long-press any call for quick actions</span>
+</p>
+</div>
+</main>
+<!-- 5. Interactive Call Action Bottom Sheet Overlay (Pre-rendered Active State Drawer) -->
+<div class="fixed inset-0 z-50 flex items-end justify-center pointer-events-none transition-opacity duration-300" id="callActionSheet">
+<!-- Backdrop Dimmer -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300" id="sheetBackdrop" onclick="closeBottomSheet()"></div>
+<!-- Modal Panel Container -->
+<div class="w-full max-w-[440px] bg-surface-container-low/95 backdrop-blur-2xl rounded-t-3xl border-t border-outline-variant/40 p-5 space-y-4 shadow-[0_-12px_40px_rgba(0,0,0,0.8)] transform translate-y-full pointer-events-auto transition-transform duration-300 ease-out z-10" id="sheetPanel">
+<!-- Pull Pill Drag Handle -->
+<div class="w-10 h-1 bg-outline-variant rounded-full mx-auto mb-1"></div>
+<!-- Sheet Header Telemetry -->
+<div class="flex items-start justify-between border-b border-outline-variant/30 pb-3">
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface" id="modalTargetPhone">+234 703 911 0042</span>
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+</div>
+<p class="font-body-sm text-body-sm text-error mt-0.5 font-medium" id="modalTargetMeta">Suspected Fraud • Bank Impersonation</p>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors" onclick="closeBottomSheet()">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Action Buttons (Strictly according to prompts) -->
+<div class="space-y-2.5 pt-1">
+<!-- Option 1: Destructive Crimson Block -->
+<button class="w-full h-13 px-4 py-3 rounded-xl bg-error text-on-error font-body-lg font-bold flex items-center justify-between hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_0_20px_-4px_rgba(255,71,87,0.5)]" onclick="executeAction('Number Blacklisted')">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xl">block</span>
+<span class="font-headline-sm text-body-lg">Block &amp; Blacklist Number</span>
+</div>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+<!-- Option 2: Community Spam Report -->
+<button class="w-full h-13 px-4 py-3 rounded-xl bg-tertiary-container text-on-tertiary font-body-lg font-bold flex items-center justify-between hover:brightness-110 active:scale-[0.98] transition-all border border-tertiary/40" onclick="executeAction('Reported to Community Network')">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xl">flag</span>
+<span class="font-headline-sm text-body-lg">Report as Spam to Community</span>
+</div>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+<!-- Option 3: Whitelist / Mark Safe -->
+<button class="w-full h-13 px-4 py-3 rounded-xl bg-surface-container text-secondary font-body-lg font-bold flex items-center justify-between border border-secondary/40 hover:bg-surface-container-high active:scale-[0.98] transition-all" onclick="executeAction('Added to Verified Safe List')">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-headline-sm text-body-lg">White-list / Mark Safe</span>
+</div>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+<!-- Option 4: Dismiss -->
+<button class="w-full py-2.5 rounded-xl text-outline hover:text-on-surface font-body-md text-body-md font-semibold text-center border border-transparent hover:border-outline-variant/30 transition-all" onclick="closeBottomSheet()">
+            Dismiss
+          </button>
+</div>
+</div>
+</div>
+<!-- 6. BottomNavBar (Shared Component JSON Execution) -->
+<!-- Active State: 'Shield' selected according to strict hierarchy & semantic intent -->
+<nav class="fixed bottom-0 left-0 w-full z-40 flex justify-around items-center px-4 py-2 bg-surface-container-low/90 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] max-w-[440px] left-1/2 -translate-x-1/2">
+<!-- Tab 1: Shield (Active) -->
+<button aria-label="Shield tab" class="flex flex-col items-center justify-center text-primary py-1 px-3 rounded-lg bg-surface-container-highest/50 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="text-label-caption font-label-caption mt-0.5 tracking-tight">Shield</span>
+</button>
+<!-- Tab 2: Logs (Inactive) -->
+<button aria-label="Logs tab" class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="list_alt">list_alt</span>
+<span class="text-label-caption font-label-caption mt-0.5 tracking-tight">Logs</span>
+</button>
+<!-- Tab 3: Report (Inactive) -->
+<button aria-label="Report tab" class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="gpp_maybe">gpp_maybe</span>
+<span class="text-label-caption font-label-caption mt-0.5 tracking-tight">Report</span>
+</button>
+<!-- Tab 4: Settings (Inactive) -->
+<button aria-label="Settings tab" class="flex flex-col items-center justify-center text-outline py-1 px-3 hover:text-on-surface transition-colors duration-150 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-2xl" data-icon="tune">tune</span>
+<span class="text-label-caption font-label-caption mt-0.5 tracking-tight">Settings</span>
+</button>
+</nav>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    function handleSyncAnimation() {
+      const icon = document.getElementById('syncIcon');
+      icon.classList.add('rotate-180');
+      setTimeout(() => {
+        icon.classList.remove('rotate-180');
+      }, 500);
+    }
+
+    function openBottomSheet(phone, meta, tag) {
+      const sheet = document.getElementById('callActionSheet');
+      const backdrop = document.getElementById('sheetBackdrop');
+      const panel = document.getElementById('sheetPanel');
+      const phoneEl = document.getElementById('modalTargetPhone');
+      const metaEl = document.getElementById('modalTargetMeta');
+
+      phoneEl.textContent = phone;
+      metaEl.textContent = meta;
+
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100', 'pointer-events-auto');
+      panel.classList.remove('translate-y-full');
+      panel.classList.add('translate-y-0');
+    }
+
+    function closeBottomSheet() {
+      const backdrop = document.getElementById('sheetBackdrop');
+      const panel = document.getElementById('sheetPanel');
+
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      panel.classList.add('translate-y-full');
+      panel.classList.remove('translate-y-0');
+    }
+
+    function executeAction(message) {
+      alert(message);
+      closeBottomSheet();
+    }
+  </script>
+</body></html>

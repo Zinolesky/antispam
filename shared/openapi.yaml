@@ -1,0 +1,458 @@
+openapi: "3.1.0"
+
+info:
+  title: AntiSpamApp API
+  version: "1.0.0"
+  description: |
+    Cross-platform spam call screening platform.
+    - **FastAPI** handles: `/api/v1/auth`, `/api/v1/reports`, `/api/v1/admin`, `/api/v1/numbers`
+    - **Go Sync** handles: `/sync`, `/lookup`
+
+servers:
+  - url: http://localhost/
+    description: Local Docker Compose (via Nginx)
+  - url: http://localhost:8000/
+    description: FastAPI direct (dev)
+  - url: http://localhost:8080/
+    description: Go Sync direct (dev)
+
+tags:
+  - name: auth
+    description: User authentication (JWT + OAuth2)
+  - name: reports
+    description: Community spam report submission
+  - name: numbers
+    description: Number lookup (fallback, single query)
+  - name: admin
+    description: Admin dashboard and analytics
+  - name: sync
+    description: High-throughput delta sync (Go service)
+  - name: lookup
+    description: Sub-millisecond number check (Go service)
+
+# ── Security Schemes ────────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ── Auth ──────────────────────────────────────────────────────────────────────
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email, example: "user@example.com" }
+        password: { type: string, minLength: 8, example: "S3cur3P@ss!" }
+        display_name: { type: string, example: "Alice Smith" }
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:    { type: string, format: email }
+        password: { type: string }
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:  { type: string }
+        refresh_token: { type: string }
+        token_type:    { type: string, example: "bearer" }
+        expires_in:    { type: integer, example: 1800 }
+
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: { type: string }
+
+    UserProfile:
+      type: object
+      properties:
+        id:           { type: string, format: uuid }
+        email:        { type: string, format: email }
+        display_name: { type: string }
+        is_admin:     { type: boolean }
+        created_at:   { type: string, format: date-time }
+
+    # ── Reports ───────────────────────────────────────────────────────────────────
+    SpamReportRequest:
+      type: object
+      required: [phone_number]
+      properties:
+        phone_number:
+          type: string
+          pattern: '^\+[1-9]\d{6,14}$'
+          example: "+14155552671"
+        category:
+          type: string
+          enum: [robocall, telemarketer, scam, unknown]
+          default: unknown
+        notes:
+          type: string
+          maxLength: 500
+
+    SpamReportResponse:
+      type: object
+      properties:
+        id:           { type: integer }
+        phone_number: { type: string }
+        category:     { type: string }
+        created_at:   { type: string, format: date-time }
+        message:      { type: string }
+
+    NumberInfo:
+      type: object
+      properties:
+        phone_number:  { type: string }
+        is_spam:       { type: boolean }
+        spam_score:    { type: integer, minimum: 0, maximum: 100 }
+        category:      { type: string }
+        report_count:  { type: integer }
+        last_reported: { type: string, format: date-time, nullable: true }
+
+    # ── Admin ─────────────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      properties:
+        total_spam_numbers:   { type: integer }
+        total_reports:        { type: integer }
+        total_users:          { type: integer }
+        reports_today:        { type: integer }
+        top_categories:
+          type: array
+          items:
+            type: object
+            properties:
+              category: { type: string }
+              count:    { type: integer }
+        recent_promotions:
+          type: array
+          items: { $ref: '#/components/schemas/NumberInfo' }
+
+    # ── Sync (Go) ─────────────────────────────────────────────────────────────────
+    SyncDelta:
+      type: object
+      description: "One NDJSON record per line in the /sync stream"
+      properties:
+        id:           { type: integer }
+        op:           { type: string, enum: [I, U, D], description: "Insert / Update / Delete" }
+        phone_number: { type: string }
+        spam_score:   { type: integer, nullable: true }
+        category:     { type: string, nullable: true }
+        is_active:    { type: boolean, nullable: true }
+        ts:           { type: string, format: date-time }
+
+    LookupResponse:
+      type: object
+      properties:
+        phone_number: { type: string }
+        is_spam:      { type: boolean }
+        spam_score:   { type: integer, nullable: true }
+        category:     { type: string, nullable: true }
+        source:       { type: string, enum: [bloom_filter, postgres, not_found] }
+
+    # ── Errors ────────────────────────────────────────────────────────────────────
+    ErrorResponse:
+      type: object
+      properties:
+        detail: { type: string }
+        code:   { type: string }
+
+# ── Paths ───────────────────────────────────────────────────────────────────────
+paths:
+
+  # ── Auth ──────────────────────────────────────────────────────────────────────
+  /api/v1/auth/register:
+    post:
+      tags: [auth]
+      summary: Register a new user (email/password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        "409":
+          description: Email already registered
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/v1/auth/login:
+    post:
+      tags: [auth]
+      summary: Login with email/password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        "200":
+          description: Tokens issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: Rotate refresh token and get new access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        "200":
+          description: New tokens issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+        "401":
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/v1/auth/logout:
+    post:
+      tags: [auth]
+      summary: Revoke refresh token
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        "204":
+          description: Logged out
+
+  /api/v1/auth/me:
+    get:
+      tags: [auth]
+      summary: Get current user profile
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+
+  /api/v1/auth/oauth/google:
+    get:
+      tags: [auth]
+      summary: Initiate Google OAuth2 flow (redirect)
+      responses:
+        "302":
+          description: Redirect to Google consent screen
+
+  /api/v1/auth/oauth/google/callback:
+    get:
+      tags: [auth]
+      summary: Google OAuth2 callback — issues JWT tokens
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema: { type: string }
+        - name: state
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Tokens issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenResponse' }
+
+  # ── Reports ───────────────────────────────────────────────────────────────────
+  /api/v1/reports:
+    post:
+      tags: [reports]
+      summary: Submit a spam report for a phone number
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SpamReportRequest' }
+      responses:
+        "201":
+          description: Report submitted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SpamReportResponse' }
+        "429":
+          description: Rate limit exceeded
+
+  /api/v1/reports/{phone_number}:
+    get:
+      tags: [reports]
+      summary: Get report history for a number
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: phone_number
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Report list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SpamReportResponse' }
+
+  # ── Numbers ───────────────────────────────────────────────────────────────────
+  /api/v1/numbers/check:
+    get:
+      tags: [numbers]
+      summary: Single number spam check (fallback — use Go /lookup for speed)
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: number
+          in: query
+          required: true
+          schema: { type: string, example: "+14155552671" }
+      responses:
+        "200":
+          description: Number info
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NumberInfo' }
+
+  # ── Admin ─────────────────────────────────────────────────────────────────────
+  /api/v1/admin/dashboard:
+    get:
+      tags: [admin]
+      summary: Admin dashboard stats
+      security: [{ BearerAuth: [] }]
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DashboardStats' }
+
+  /api/v1/admin/numbers:
+    get:
+      tags: [admin]
+      summary: List all confirmed spam numbers (paginated)
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, default: 50, maximum: 200 }
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Paginated spam numbers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/NumberInfo' }
+                  total: { type: integer }
+                  page:  { type: integer }
+
+  /api/v1/admin/numbers/{id}:
+    delete:
+      tags: [admin]
+      summary: Remove a number from the spam list
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Number removed
+
+  # ── Go Sync ───────────────────────────────────────────────────────────────────
+  /sync:
+    get:
+      tags: [sync]
+      summary: Stream delta changes since a cursor (NDJSON)
+      description: |
+        Returns newline-delimited JSON. Each line is a `SyncDelta` record.
+        Mobile clients send `since` as their last known delta `id` (stored in SQLite).
+        Pass `since=0` to get all records (initial full sync).
+      parameters:
+        - name: since
+          in: query
+          required: true
+          schema: { type: integer, example: 0 }
+          description: Last known sync_deltas.id (exclusive)
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10000, maximum: 50000 }
+      responses:
+        "200":
+          description: NDJSON stream of SyncDelta records
+          content:
+            application/x-ndjson:
+              schema: { $ref: '#/components/schemas/SyncDelta' }
+
+  /lookup:
+    get:
+      tags: [lookup]
+      summary: Sub-millisecond single number check (Redis bloom filter)
+      parameters:
+        - name: number
+          in: query
+          required: true
+          schema: { type: string, example: "+14155552671" }
+      responses:
+        "200":
+          description: Lookup result
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LookupResponse' }
+        "400":
+          description: Invalid number format
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /health:
+    get:
+      tags: [sync]
+      summary: Go service health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "ok" }
+                  uptime_s: { type: number }
