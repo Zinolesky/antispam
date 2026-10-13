@@ -1,15 +1,25 @@
 /**
  * App.tsx — Root component.
- * Initializes SQLite, restores auth session, and starts the sync scheduler.
+ * Initializes SQLite, restores auth session, starts sync schedulers,
+ * and monitors cross-device rule updates and remote session events.
  */
 import React, { useEffect, useRef } from 'react';
-import { StatusBar, View, ActivityIndicator, Text, StyleSheet, Linking } from 'react-native';
+import {
+  StatusBar,
+  View,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+  Linking,
+  AppState,
+} from 'react-native';
 import { initDB, syncBlockListsWithCloud } from './src/services/DatabaseService';
 import { startSyncScheduler } from './src/services/SyncService';
 import { useAppStore } from './src/store/useAppStore';
 import { storeTokens, AuthAPI } from './src/services/ApiService';
 import AppNavigator from './src/navigation/AppNavigator';
 import { StitchAlertProvider } from './src/components/StitchAlert';
+import { CloudSyncPromptModal } from './src/components/CloudSyncPromptModal';
 
 export default function App() {
   const { restoreSession, authLoading } = useAppStore();
@@ -58,8 +68,28 @@ export default function App() {
 
     bootstrap();
 
+    // ── Foreground heartbeat for immediate cross-device sync prompts ───────────
+    const heartbeat = setInterval(() => {
+      const state = useAppStore.getState();
+      if (state.isAuthenticated && !state.pendingCloudDiff) {
+        state.checkCloudBlocklistUpdates().catch(() => {});
+      }
+    }, 10_000);
+
+    // Prompt check whenever app resumes from background
+    const appStateSub = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        const state = useAppStore.getState();
+        if (state.isAuthenticated && !state.pendingCloudDiff) {
+          state.checkCloudBlocklistUpdates().catch(() => {});
+        }
+      }
+    });
+
     return () => {
       stopSync.current?.();
+      clearInterval(heartbeat);
+      appStateSub.remove();
       linkSub.remove();
     };
   }, [restoreSession]);
@@ -78,6 +108,7 @@ export default function App() {
   return (
     <StitchAlertProvider>
       <AppNavigator />
+      <CloudSyncPromptModal />
     </StitchAlertProvider>
   );
 }

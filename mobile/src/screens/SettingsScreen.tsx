@@ -33,7 +33,7 @@ import {
   syncBlockListsWithCloud,
 } from '@services/DatabaseService';
 import { version as appVersion } from '../../package.json';
-import { AuthAPI } from '@services/ApiService';
+import { AuthAPI, BlockListAPI } from '@services/ApiService';
 import { useAppStore } from '@store/useAppStore';
 import { isValidPhoneNumber, normalizePhoneNumber } from '../utils/phoneUtils';
 import { Badge, GoogleMultiColorIcon, StitchToggle, Symbol } from '../components/stitch';
@@ -97,11 +97,11 @@ export default function SettingsScreen() {
       return;
     }
     const normalized = normalizePhoneNumber(trimmed);
-    await addToBlockList({ phone_number: normalized, label: 'Manual Quarantined' });
+    await addToBlockList({ phone_number: normalized, label: 'Manual Quarantined' }, true);
     setNewBlockNumber('');
     await loadInfo();
     if (user) {
-      syncBlockListsWithCloud().catch(() => {});
+      BlockListAPI.addNumber(normalized, 'Manual Quarantined').catch(() => {});
     }
     Alert.alert('Quarantined', `Calls from ${normalized} will now be rejected automatically.`);
   };
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
             await removeFromBlockList(phoneNumber);
             await loadInfo();
             if (user) {
-              syncBlockListsWithCloud().catch(() => {});
+              BlockListAPI.removeNumber(phoneNumber).catch(() => {});
             }
           },
         },
@@ -137,11 +137,11 @@ export default function SettingsScreen() {
       Alert.alert('Invalid Prefix', 'Prefix must be at least 3 digits.');
       return;
     }
-    await addBlockedPrefix({ prefix: trimmed, label: 'VoIP Range Filter' });
+    await addBlockedPrefix({ prefix: trimmed, label: 'VoIP Range Filter' }, true);
     setNewPrefix('');
     await loadInfo();
     if (user) {
-      syncBlockListsWithCloud().catch(() => {});
+      BlockListAPI.addPrefix(trimmed, 'VoIP Range Filter').catch(() => {});
     }
     Alert.alert('Prefix Rule Added', `All calls starting with ${trimmed} will now be rejected automatically.`);
   };
@@ -159,7 +159,7 @@ export default function SettingsScreen() {
             await removeBlockedPrefix(prefix);
             await loadInfo();
             if (user) {
-              syncBlockListsWithCloud().catch(() => {});
+              BlockListAPI.removePrefix(prefix).catch(() => {});
             }
           },
         },

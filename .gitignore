@@ -13,6 +13,7 @@ debug.keystore
 .env
 .env.*
 !.env.example
+tools/
 
 # Android signing credentials
 mobile/android/app/*.keystore
@@ -65,3 +66,4 @@ htmlcov/
 *.swo
 .DS_Store
 Thumbs.db
+AGENTS.md

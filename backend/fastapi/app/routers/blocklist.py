@@ -13,11 +13,20 @@ from app.schemas import (
     AddPrefixRequest,
     BlockListSyncRequest,
     BlockListSyncResponse,
+    BlockListVersionResponse,
     BlockNumberItem,
     BlockPrefixItem,
 )
 
 router = APIRouter(prefix="/api/v1/user/blocklist", tags=["blocklist"])
+
+
+@router.get("/version", response_model=BlockListVersionResponse)
+async def get_user_blocklist_version(
+    current_user: User = Depends(_get_current_user),
+):
+    """Lightweight endpoint for polling cross-device blocklist version changes."""
+    return BlockListVersionResponse(version=current_user.blocklist_version or 1)
 
 
 @router.get("", response_model=BlockListSyncResponse)
@@ -42,7 +51,11 @@ async def get_user_blocklist(
         for row in p_res.scalars().all()
     ]
 
-    return BlockListSyncResponse(numbers=numbers, prefixes=prefixes)
+    return BlockListSyncResponse(
+        numbers=numbers,
+        prefixes=prefixes,
+        version=current_user.blocklist_version or 1,
+    )
 
 
 @router.post("/sync", response_model=BlockListSyncResponse)
@@ -74,6 +87,7 @@ async def sync_user_blocklist(
             )
             await db.execute(stmt)
 
+    current_user.blocklist_version = (current_user.blocklist_version or 1) + 1
     await db.commit()
 
     # Return unified list
@@ -92,8 +106,9 @@ async def add_block_number(
         .on_conflict_do_nothing(index_elements=["user_id", "phone_number"])
     )
     await db.execute(stmt)
+    current_user.blocklist_version = (current_user.blocklist_version or 1) + 1
     await db.commit()
-    return {"message": "Number blocked successfully"}
+    return {"message": "Number blocked successfully", "version": current_user.blocklist_version}
 
 
 @router.delete("/number/{phone_number}", status_code=status.HTTP_200_OK)
@@ -107,8 +122,9 @@ async def remove_block_number(
         UserBlockList.phone_number == phone_number,
     )
     await db.execute(stmt)
+    current_user.blocklist_version = (current_user.blocklist_version or 1) + 1
     await db.commit()
-    return {"message": "Number removed from block list"}
+    return {"message": "Number removed from block list", "version": current_user.blocklist_version}
 
 
 @router.post("/prefix", status_code=status.HTTP_201_CREATED)
@@ -123,8 +139,9 @@ async def add_block_prefix(
         .on_conflict_do_nothing(index_elements=["user_id", "prefix"])
     )
     await db.execute(stmt)
+    current_user.blocklist_version = (current_user.blocklist_version or 1) + 1
     await db.commit()
-    return {"message": "Prefix blocked successfully"}
+    return {"message": "Prefix blocked successfully", "version": current_user.blocklist_version}
 
 
 @router.delete("/prefix/{prefix}", status_code=status.HTTP_200_OK)
@@ -138,5 +155,6 @@ async def remove_block_prefix(
         UserBlockPrefix.prefix == prefix,
     )
     await db.execute(stmt)
+    current_user.blocklist_version = (current_user.blocklist_version or 1) + 1
     await db.commit()
-    return {"message": "Prefix removed from block list"}
+    return {"message": "Prefix removed from block list", "version": current_user.blocklist_version}

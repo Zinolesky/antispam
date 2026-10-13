@@ -52,6 +52,12 @@ export async function initDB(): Promise<SQLiteDatabase> {
       await database.executeSql('PRAGMA synchronous=NORMAL;');
       await database.executeSql('PRAGMA foreign_keys=ON;');
       await createTables(database);
+      try {
+        await database.executeSql('ALTER TABLE user_block_list ADD COLUMN is_synced INTEGER DEFAULT 0;');
+      } catch (_) {}
+      try {
+        await database.executeSql('ALTER TABLE user_block_prefixes ADD COLUMN is_synced INTEGER DEFAULT 0;');
+      } catch (_) {}
       _db = database;
       return database;
     })();
@@ -80,6 +86,7 @@ async function createTables(db: SQLiteDatabase): Promise<void> {
       CREATE TABLE IF NOT EXISTS user_block_list (
         phone_number TEXT PRIMARY KEY,
         label        TEXT,
+        is_synced    INTEGER DEFAULT 0,
         created_at   TEXT NOT NULL DEFAULT (datetime('now'))
       );
     `);
@@ -88,6 +95,7 @@ async function createTables(db: SQLiteDatabase): Promise<void> {
       CREATE TABLE IF NOT EXISTS user_block_prefixes (
         prefix     TEXT PRIMARY KEY,
         label      TEXT,
+        is_synced  INTEGER DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
     `);
@@ -262,16 +270,16 @@ import { getPhoneNumberVariants, normalizePhoneNumber, getPrefixVariants } from 
 
 // ── Personal Block List ────────────────────────────────────────────────────────
 
-export async function addToBlockList(entry: BlockListEntry): Promise<void> {
+export async function addToBlockList(entry: BlockListEntry, isSynced = false): Promise<void> {
   const norm = normalizePhoneNumber(entry.phone_number);
   const variants = getPhoneNumberVariants(entry.phone_number);
   
   await db().transaction(async (tx: Transaction) => {
     for (const v of variants) {
       tx.executeSql(
-        `INSERT OR REPLACE INTO user_block_list(phone_number, label, created_at)
-         VALUES(?, ?, datetime('now'))`,
-        [v, entry.label ?? null],
+        `INSERT OR REPLACE INTO user_block_list(phone_number, label, is_synced, created_at)
+         VALUES(?, ?, ?, datetime('now'))`,
+        [v, entry.label ?? null, isSynced ? 1 : 0],
       );
     }
   });
@@ -322,13 +330,13 @@ export async function isBlocked(phoneNumber: string): Promise<boolean> {
 
 // ── Prefix Block List ──────────────────────────────────────────────────────────
 
-export async function addBlockedPrefix(entry: BlockedPrefixEntry): Promise<void> {
+export async function addBlockedPrefix(entry: BlockedPrefixEntry, isSynced = false): Promise<void> {
   const raw = entry.prefix.trim().replace(/[\s\-().*#]/g, '');
   if (!raw) return;
   await db().executeSql(
-    `INSERT OR REPLACE INTO user_block_prefixes(prefix, label, created_at)
-     VALUES(?, ?, datetime('now'))`,
-    [raw, entry.label ?? 'Telemarketing Prefix'],
+    `INSERT OR REPLACE INTO user_block_prefixes(prefix, label, is_synced, created_at)
+     VALUES(?, ?, ?, datetime('now'))`,
+    [raw, entry.label ?? 'Telemarketing Prefix', isSynced ? 1 : 0],
   );
 }
 
@@ -374,6 +382,127 @@ export async function isPrefixBlocked(phoneNumber: string): Promise<boolean> {
 
 import { BlockListAPI } from './ApiService';
 
+export interface CloudBlocklistDiff {
+  numbersToAdd: BlockListEntry[];
+  numbersToRemove: BlockListEntry[];
+  prefixesToAdd: BlockedPrefixEntry[];
+  prefixesToRemove: BlockedPrefixEntry[];
+  serverVersion: number;
+  totalChanges: number;
+}
+
+export async function markAllLocalRulesSynced(): Promise<void> {
+  await db().executeSql('UPDATE user_block_list SET is_synced = 1 WHERE is_synced = 0');
+  await db().executeSql('UPDATE user_block_prefixes SET is_synced = 1 WHERE is_synced = 0');
+}
+
+export async function detectCloudBlocklistDiff(): Promise<CloudBlocklistDiff | null> {
+  const res = await BlockListAPI.get();
+  const cloudNumbers = res.data.numbers || [];
+  const cloudPrefixes = res.data.prefixes || [];
+  const serverVersion = res.data.version ?? 1;
+
+  // Local numbers with sync status
+  const [localNumResult] = await db().executeSql(
+    'SELECT phone_number, label, COALESCE(is_synced, 0) as is_synced FROM user_block_list',
+  );
+  const localNumbersMap = new Map<string, { label?: string; is_synced: number }>();
+  for (let i = 0; i < localNumResult.rows.length; i++) {
+    const row = localNumResult.rows.item(i);
+    const norm = normalizePhoneNumber(row.phone_number);
+    if (!localNumbersMap.has(norm)) {
+      localNumbersMap.set(norm, { label: row.label, is_synced: row.is_synced });
+    }
+  }
+
+  // Local prefixes with sync status
+  const [localPrefResult] = await db().executeSql(
+    'SELECT prefix, label, COALESCE(is_synced, 0) as is_synced FROM user_block_prefixes',
+  );
+  const localPrefixesMap = new Map<string, { label?: string; is_synced: number }>();
+  for (let i = 0; i < localPrefResult.rows.length; i++) {
+    const row = localPrefResult.rows.item(i);
+    const clean = row.prefix.replace(/[\s\-().*#]/g, '');
+    if (!localPrefixesMap.has(clean)) {
+      localPrefixesMap.set(clean, { label: row.label, is_synced: row.is_synced });
+    }
+  }
+
+  const cloudNumbersSet = new Set(cloudNumbers.map(n => normalizePhoneNumber(n.phone_number)));
+  const cloudPrefixesSet = new Set(cloudPrefixes.map(p => p.prefix.replace(/[\s\-().*#]/g, '')));
+
+  // Numbers to add: present in cloud, not present locally
+  const numbersToAdd = cloudNumbers.filter(
+    cn => !localNumbersMap.has(normalizePhoneNumber(cn.phone_number)),
+  );
+
+  // Numbers to remove: present locally, was previously synced (is_synced = 1), but missing in cloud
+  const numbersToRemove: BlockListEntry[] = [];
+  localNumbersMap.forEach((meta, num) => {
+    if (meta.is_synced === 1 && !cloudNumbersSet.has(num)) {
+      numbersToRemove.push({ phone_number: num, label: meta.label });
+    }
+  });
+
+  // Prefixes to add: present in cloud, not present locally
+  const prefixesToAdd = cloudPrefixes.filter(
+    cp => !localPrefixesMap.has(cp.prefix.replace(/[\s\-().*#]/g, '')),
+  );
+
+  // Prefixes to remove: present locally, was previously synced, but missing in cloud
+  const prefixesToRemove: BlockedPrefixEntry[] = [];
+  localPrefixesMap.forEach((meta, pref) => {
+    if (meta.is_synced === 1 && !cloudPrefixesSet.has(pref)) {
+      prefixesToRemove.push({ prefix: pref, label: meta.label });
+    }
+  });
+
+  const totalChanges =
+    numbersToAdd.length +
+    numbersToRemove.length +
+    prefixesToAdd.length +
+    prefixesToRemove.length;
+
+  if (totalChanges === 0) {
+    await markAllLocalRulesSynced();
+    return null;
+  }
+
+  return {
+    numbersToAdd,
+    numbersToRemove,
+    prefixesToAdd,
+    prefixesToRemove,
+    serverVersion,
+    totalChanges,
+  };
+}
+
+export async function applyCloudBlocklistDiff(diff: CloudBlocklistDiff): Promise<void> {
+  for (const n of diff.numbersToRemove) {
+    await removeFromBlockList(n.phone_number);
+  }
+  for (const p of diff.prefixesToRemove) {
+    await removeBlockedPrefix(p.prefix);
+  }
+  for (const n of diff.numbersToAdd) {
+    await addToBlockList(n, true);
+  }
+  for (const p of diff.prefixesToAdd) {
+    await addBlockedPrefix(p, true);
+  }
+  await markAllLocalRulesSynced();
+}
+
+export async function keepLocalRulesAndOverwriteCloud(): Promise<void> {
+  const [localNumbers, localPrefixes] = await Promise.all([
+    getBlockList(),
+    getBlockedPrefixes(),
+  ]);
+  await BlockListAPI.sync(localNumbers, localPrefixes);
+  await markAllLocalRulesSynced();
+}
+
 export async function syncBlockListsWithCloud(): Promise<{ numbersCount: number; prefixesCount: number }> {
   const [localNumbers, localPrefixes] = await Promise.all([
     getBlockList(),
@@ -384,11 +513,13 @@ export async function syncBlockListsWithCloud(): Promise<{ numbersCount: number;
   const { numbers, prefixes } = res.data;
 
   for (const num of numbers) {
-    await addToBlockList(num);
+    await addToBlockList(num, true);
   }
   for (const pref of prefixes) {
-    await addBlockedPrefix(pref);
+    await addBlockedPrefix(pref, true);
   }
+
+  await markAllLocalRulesSynced();
 
   return { numbersCount: numbers.length, prefixesCount: prefixes.length };
 }

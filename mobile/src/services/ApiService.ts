@@ -5,11 +5,12 @@
 import axios, { AxiosInstance } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = __DEV__
-  ? 'http://localhost:8088' // Mapped via `adb reverse tcp:8088 tcp:8088` to Nginx
-  : 'https://api.antispamapp.com'; // Production
+// Active Cloudflare Quick Tunnel URL for multi-device cross-network testing
+const CLOUDFLARE_TUNNEL_URL = 'https://thought-thousands-cookbook-quizzes.trycloudflare.com';
 
-const LAN_FALLBACK_URL = 'http://192.168.1.4:8088';
+const BASE_URL = CLOUDFLARE_TUNNEL_URL;
+
+const LAN_FALLBACK_URL = 'http://192.168.1.11:8088';
 
 // ── Shared client for Go sync endpoints ────────────────────────────────────────
 export const apiClient: AxiosInstance = axios.create({
@@ -81,6 +82,13 @@ authClient.interceptors.request.use(async config => {
   return config;
 });
 
+type AuthRevocationCallback = (reason?: string) => void;
+let _onAuthRevoked: AuthRevocationCallback | null = null;
+
+export function setOnAuthRevoked(callback: AuthRevocationCallback) {
+  _onAuthRevoked = callback;
+}
+
 // ── Auth interceptor: refresh token on 401 ────────────────────────────────────
 let _isRefreshing = false;
 let _refreshQueue: Array<(token: string) => void> = [];
@@ -120,6 +128,7 @@ authClient.interceptors.response.use(
       return authClient(original);
     } catch {
       await clearTokens();
+      _onAuthRevoked?.('Your cloud session has ended or your account was deleted on another device.');
       return Promise.reject(error);
     } finally {
       _isRefreshing = false;
@@ -159,6 +168,9 @@ export const NumbersAPI = {
 };
 
 export const BlockListAPI = {
+  getVersion: () =>
+    authClient.get<{ version: number }>('/user/blocklist/version'),
+
   sync: (
     numbers: Array<{ phone_number: string; label?: string }>,
     prefixes: Array<{ prefix: string; label?: string }>,
@@ -166,12 +178,14 @@ export const BlockListAPI = {
     authClient.post<{
       numbers: Array<{ phone_number: string; label?: string }>;
       prefixes: Array<{ prefix: string; label?: string }>;
+      version?: number;
     }>('/user/blocklist/sync', { numbers, prefixes }),
 
   get: () =>
     authClient.get<{
       numbers: Array<{ phone_number: string; label?: string }>;
       prefixes: Array<{ prefix: string; label?: string }>;
+      version?: number;
     }>('/user/blocklist'),
 
   addNumber: (phoneNumber: string, label?: string) =>

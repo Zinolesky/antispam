@@ -155,3 +155,9 @@ class BlockListSyncRequest(BaseModel):
 class BlockListSyncResponse(BaseModel):
     numbers: list[BlockNumberItem]
     prefixes: list[BlockPrefixItem]
+    version: int = 1
+
+
+class BlockListVersionResponse(BaseModel):
+    version: int
+
