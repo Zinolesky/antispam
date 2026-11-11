@@ -12,6 +12,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import { stitchAlert as Alert } from '../components/StitchAlert';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -154,10 +155,12 @@ export default function ReportScreen({ route }: Props) {
       {/* TopAppBar */}
       <View style={styles.topBar}>
         <View style={styles.inline}>
-          <View style={{ padding: 8 }}>
-            <Symbol name="shield" size={24} color={c.primary} />
-          </View>
-          <Text style={[t.headlineSm, { color: c.onSurface }]}>ShieldCall</Text>
+          <Image
+            source={require('../assets/hushline_icon.png')}
+            style={{ width: 28, height: 28, marginRight: 8 }}
+            resizeMode="contain"
+          />
+          <Text style={[t.headlineSm, { color: c.onSurface }]}>HushLine</Text>
         </View>
         <View style={styles.inline}>
           <Badge label="DEFENSE ACTIVE" color={c.secondary} dot />

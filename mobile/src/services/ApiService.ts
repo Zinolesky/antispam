@@ -1,5 +1,5 @@
 /**
- * ApiService — Axios client configured for the AntiSpamApp backend.
+ * ApiService — Axios client configured for the HushLine backend.
  * Routes to the correct service via Nginx (sync/lookup → Go, everything else → FastAPI).
  */
 import axios, { AxiosInstance } from 'axios';
@@ -91,21 +91,35 @@ export function setOnAuthRevoked(callback: AuthRevocationCallback) {
 
 // ── Auth interceptor: refresh token on 401 ────────────────────────────────────
 let _isRefreshing = false;
-let _refreshQueue: Array<(token: string) => void> = [];
+let _refreshQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (err: any) => void;
+}> = [];
 
 authClient.interceptors.response.use(
   res => res,
   async error => {
     const original = error.config;
-    if (error.response?.status !== 401 || original._retry) {
+    if (
+      !original ||
+      error.response?.status !== 401 ||
+      original._retry ||
+      original.url?.includes('/auth/refresh') ||
+      original.url?.includes('/auth/login')
+    ) {
       return Promise.reject(error);
     }
 
     if (_isRefreshing) {
-      return new Promise(resolve => {
-        _refreshQueue.push((token: string) => {
-          original.headers.Authorization = `Bearer ${token}`;
-          resolve(authClient(original));
+      return new Promise((resolve, reject) => {
+        _refreshQueue.push({
+          resolve: (token: string) => {
+            original.headers.Authorization = `Bearer ${token}`;
+            resolve(authClient(original));
+          },
+          reject: (err: any) => {
+            reject(err);
+          },
         });
       });
     }
@@ -117,19 +131,25 @@ authClient.interceptors.response.use(
       const refreshToken = await getRefreshToken();
       if (!refreshToken) throw new Error('No refresh token');
 
-      const resp = await authClient.post('/auth/refresh', { refresh_token: refreshToken });
+      const resp = await axios.post(
+        `${BASE_URL}/api/v1/auth/refresh`,
+        { refresh_token: refreshToken },
+        { timeout: 10_000, headers: { 'Content-Type': 'application/json' } },
+      );
       const { access_token, refresh_token: newRefresh } = resp.data;
 
       await storeTokens(access_token, newRefresh);
-      _refreshQueue.forEach(cb => cb(access_token));
+      _refreshQueue.forEach(item => item.resolve(access_token));
       _refreshQueue = [];
 
       original.headers.Authorization = `Bearer ${access_token}`;
       return authClient(original);
-    } catch {
+    } catch (refreshErr) {
+      _refreshQueue.forEach(item => item.reject(refreshErr));
+      _refreshQueue = [];
       await clearTokens();
       _onAuthRevoked?.('Your cloud session has ended or your account was deleted on another device.');
-      return Promise.reject(error);
+      return Promise.reject(refreshErr);
     } finally {
       _isRefreshing = false;
     }

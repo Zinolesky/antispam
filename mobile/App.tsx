@@ -12,6 +12,7 @@ import {
   StyleSheet,
   Linking,
   AppState,
+  Image,
 } from 'react-native';
 import { initDB, syncBlockListsWithCloud } from './src/services/DatabaseService';
 import { startSyncScheduler } from './src/services/SyncService';
@@ -56,13 +57,19 @@ export default function App() {
     });
 
     async function bootstrap() {
+      console.log('[App] Starting bootstrap...');
       try {
+        console.log('[App] Calling initDB()...');
         await initDB();
+        console.log('[App] initDB() returned, calling restoreSession()...');
         await restoreSession();
-        // Start delta sync scheduler (returns cleanup fn)
+        console.log('[App] restoreSession() returned, starting sync scheduler...');
         stopSync.current = startSyncScheduler();
       } catch (err) {
         console.error('[App] Bootstrap error:', err);
+      } finally {
+        console.log('[App] Bootstrap finished, ensuring authLoading is false');
+        useAppStore.setState({ authLoading: false });
       }
     }
 
@@ -98,8 +105,12 @@ export default function App() {
     return (
       <View style={styles.splash}>
         <StatusBar barStyle="light-content" backgroundColor="#0D0D1A" />
-        <Text style={styles.splashIcon}>🛡️</Text>
-        <Text style={styles.splashTitle}>AntiSpamApp</Text>
+        <Image
+          source={require('./src/assets/hushline_icon.png')}
+          style={styles.splashIconImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.splashTitle}>HushLine</Text>
         <ActivityIndicator color="#7C6FF7" style={{ marginTop: 24 }} />
       </View>
     );
@@ -120,6 +131,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  splashIcon: { fontSize: 64, marginBottom: 16 },
+  splashIconImage: { width: 96, height: 96, marginBottom: 16 },
   splashTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: 1 },
 });

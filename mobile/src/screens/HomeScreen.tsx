@@ -1,5 +1,5 @@
 /**
- * HomeScreen — ShieldCall AI Defense Dashboard.
+ * HomeScreen — HushLine AI Defense Dashboard.
  * Mirrors design/stitch/.../dashboard_active_shield/code.html.
  */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -15,6 +15,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 import { stitchAlert as Alert } from '../components/StitchAlert';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -265,11 +266,13 @@ export default function HomeScreen() {
       {/* TopAppBar */}
       <View style={styles.topBar}>
         <View style={styles.brandRow}>
-          <View style={styles.logoBox}>
-            <Symbol name="shield" size={20} color={c.primary} />
-          </View>
+          <Image
+            source={require('../assets/hushline_icon.png')}
+            style={styles.brandIcon}
+            resizeMode="contain"
+          />
           <View>
-            <Text style={styles.brandTitle}>ShieldCall</Text>
+            <Text style={styles.brandTitle}>HushLine</Text>
             <Text style={styles.brandSub}>TELECOM DEFENSE</Text>
           </View>
         </View>
@@ -454,7 +457,7 @@ export default function HomeScreen() {
                         {isEffectiveActive
                           ? 'Incoming calls are being screened in real-time by on-device AI.'
                           : isScreeningPaused
-                          ? 'ShieldCall filtering is paused. Tap the toggle switch to resume protection.'
+                          ? 'HushLine filtering is paused. Tap the toggle switch to resume protection.'
                           : 'Turn on the switch to grant Android Call Screening permission.'}
                       </Text>
                     </View>
@@ -599,6 +602,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brandIcon: { width: 34, height: 34 },
   logoBox: {
     width: 36,
     height: 36,

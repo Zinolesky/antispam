@@ -1,6 +1,6 @@
 /**
  * Stitch "Obsidian Sentinel" design tokens — copied 1:1 from the exported
- * Tailwind config in design/stitch/stitch_shieldcall_spam_blocker/*.html.
+ * Tailwind config in design/stitch/stitch_hushline_spam_blocker/*.html.
  */
 import { TextStyle } from 'react-native';
 

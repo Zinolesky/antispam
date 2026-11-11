@@ -272,13 +272,13 @@ async def google_callback(code: str, state: str, db: AsyncSession = Depends(get_
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Connected to AntiSpam</title>
+  <title>Connected to HushLine</title>
 </head>
 <body style="background:#0D0D1A; color:#FFFFFF; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; margin:0; text-align:center; padding:20px;">
   <div style="font-size:48px; margin-bottom:12px;">🛡️</div>
   <h2 style="color:#2ED573; margin:0 0 8px;">Signed in with Google!</h2>
-  <p style="color:#8A8AAA; font-size:14px; margin:0 0 24px;">Returning to AntiSpamApp...</p>
-  <a id="btn" href="{deep_link}" style="background:#7C6FF7; color:#FFFFFF; text-decoration:none; font-weight:700; padding:14px 28px; border-radius:12px; font-size:15px; display:inline-block;">Open AntiSpamApp</a>
+  <p style="color:#8A8AAA; font-size:14px; margin:0 0 24px;">Returning to HushLine...</p>
+  <a id="btn" href="{deep_link}" style="background:#7C6FF7; color:#FFFFFF; text-decoration:none; font-weight:700; padding:14px 28px; border-radius:12px; font-size:15px; display:inline-block;">Open HushLine</a>
   <script>
     function redirect() {{
       window.location.href = "{deep_link}";

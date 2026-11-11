@@ -26,19 +26,19 @@ limiter = Limiter(key_func=get_remote_address)
 # ── Lifespan ───────────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("AntiSpamApp FastAPI starting up...")
+    logger.info("HushLine FastAPI starting up...")
     # Start background aggregator (runs every 60s)
     agg_task = asyncio.create_task(start_aggregator_loop(interval_seconds=60))
     yield
     # Shutdown
     agg_task.cancel()
     await close_redis()
-    logger.info("AntiSpamApp FastAPI shut down")
+    logger.info("HushLine FastAPI shut down")
 
 
 # ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="AntiSpamApp API",
+    title="HushLine API",
     version="1.0.0",
     description="Spam call screening platform — Auth, Reports, Admin",
     docs_url="/docs",

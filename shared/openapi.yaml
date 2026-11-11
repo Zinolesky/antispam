@@ -1,7 +1,7 @@
 openapi: "3.1.0"
 
 info:
-  title: AntiSpamApp API
+  title: HushLine API
   version: "1.0.0"
   description: |
     Cross-platform spam call screening platform.

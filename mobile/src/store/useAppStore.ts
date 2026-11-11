@@ -114,21 +114,27 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   restoreSession: async () => {
+    console.log('[useAppStore] restoreSession called');
     set({ authLoading: true });
     try {
+      console.log('[useAppStore] Getting access token...');
       const token = await getAccessToken();
+      console.log('[useAppStore] Access token:', token ? 'exists' : 'null');
       if (token) {
+        console.log('[useAppStore] Calling AuthAPI.me()...');
         const me = await AuthAPI.me();
+        console.log('[useAppStore] AuthAPI.me() returned user:', me.data?.email);
         set({ isAuthenticated: true, user: me.data });
-        // Check for cross-device updates right after restoring session
         get().checkCloudBlocklistUpdates().catch(() => {});
       } else {
         set({ isAuthenticated: false, user: null });
       }
-    } catch {
+    } catch (e: any) {
+      console.log('[useAppStore] restoreSession failed, clearing tokens:', e?.message);
       await clearTokens();
       set({ isAuthenticated: false, user: null });
     } finally {
+      console.log('[useAppStore] restoreSession finally: setting authLoading false');
       set({ authLoading: false });
     }
   },

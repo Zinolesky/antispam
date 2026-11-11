@@ -1,5 +1,5 @@
 /**
- * SpamLogsScreen — Spam Logs & Search (ShieldCall Threat Telemetry).
+ * SpamLogsScreen — Spam Logs & Search (HushLine Threat Telemetry).
  * Mirrors design/stitch/.../spam_logs_search/code.html.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -120,7 +120,7 @@ export default function SpamLogsScreen() {
     const lines = filtered
       .slice(0, 100)
       .map(l => `${l.called_at}  ${l.phone_number}  ${l.screening_result.toUpperCase()}${l.spam_score != null ? `  ${l.spam_score}%` : ''}`);
-    Share.share({ message: `ShieldCall Threat Log (${filtered.length} entries)\n\n${lines.join('\n')}` });
+    Share.share({ message: `HushLine Threat Log (${filtered.length} entries)\n\n${lines.join('\n')}` });
   };
 
   // Inspection card: shown for the top match while searching.
@@ -266,7 +266,7 @@ export default function SpamLogsScreen() {
           </TouchableOpacity>
           <View>
             <Text style={[t.headlineSm, { color: c.onSurface }]}>Spam Logs &amp; Search</Text>
-            <Text style={[t.labelCaption, { color: c.outline }]}>ShieldCall Threat Telemetry</Text>
+            <Text style={[t.labelCaption, { color: c.outline }]}>HushLine Threat Telemetry</Text>
           </View>
         </View>
         <TouchableOpacity accessibilityLabel="Export Logs" style={styles.headerBtn} onPress={handleExport}>

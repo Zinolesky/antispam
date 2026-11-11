@@ -1,5 +1,5 @@
 /**
- * Stitch Design System Tokens — "Obsidian Sentinel" / ShieldCall Theme.
+ * Stitch Design System Tokens — "Obsidian Sentinel" / HushLine Theme.
  */
 
 export const colors = {

@@ -43,21 +43,46 @@ const DB_VERSION = 1;
 
 let _initPromise: Promise<SQLiteDatabase> | null = null;
 
+async function addColumnIfNotExists(
+  database: SQLiteDatabase,
+  table: string,
+  column: string,
+  def: string,
+): Promise<void> {
+  try {
+    const [info] = await database.executeSql(`PRAGMA table_info(${table});`);
+    let found = false;
+    for (let i = 0; i < info.rows.length; i++) {
+      if (info.rows.item(i).name === column) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      await database.executeSql(`ALTER TABLE ${table} ADD COLUMN ${column} ${def};`);
+    }
+  } catch (e) {
+    console.warn(`[initDB] Migration check failed for ${table}.${column}:`, e);
+  }
+}
+
 export async function initDB(): Promise<SQLiteDatabase> {
+  console.log('[DatabaseService] initDB called, _db:', Boolean(_db));
   if (_db) return _db;
   if (!_initPromise) {
     _initPromise = (async () => {
+      console.log('[DatabaseService] Opening database...');
       const database = await SQLite.openDatabase({ name: DB_NAME, location: 'default' });
+      console.log('[DatabaseService] openDatabase returned');
       await database.executeSql('PRAGMA journal_mode=WAL;');
       await database.executeSql('PRAGMA synchronous=NORMAL;');
       await database.executeSql('PRAGMA foreign_keys=ON;');
+      console.log('[DatabaseService] Calling createTables...');
       await createTables(database);
-      try {
-        await database.executeSql('ALTER TABLE user_block_list ADD COLUMN is_synced INTEGER DEFAULT 0;');
-      } catch (_) {}
-      try {
-        await database.executeSql('ALTER TABLE user_block_prefixes ADD COLUMN is_synced INTEGER DEFAULT 0;');
-      } catch (_) {}
+      console.log('[DatabaseService] createTables done, checking columns...');
+      await addColumnIfNotExists(database, 'user_block_list', 'is_synced', 'INTEGER DEFAULT 0');
+      await addColumnIfNotExists(database, 'user_block_prefixes', 'is_synced', 'INTEGER DEFAULT 0');
+      console.log('[DatabaseService] initDB complete!');
       _db = database;
       return database;
     })();

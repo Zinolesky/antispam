@@ -1,4 +1,4 @@
-# AntiSpamApp — Cross-Platform Call Screening Solution
+# HushLine — Cross-Platform Call Screening Solution
 
 A production-grade spam call detection and blocking platform.
 
@@ -62,3 +62,23 @@ User reports spam ──▶ FastAPI /reports ──▶ aggregator ──▶ spam
 - **Sync Engine**: Go 1.23, `pgx`, `go-redis`, `net/http`
 - **Data**: PostgreSQL 16, Redis 7
 - **Infra**: Docker Compose, Nginx
+
+## CI/CD Pipelines (GitHub Actions)
+
+| Workflow | File | Triggers | Purpose |
+|---|---|---|---|
+| **CI** | `.github/workflows/ci.yml` | Push & PR (`main`, `develop`) | FastAPI lint/migrations/pytest, Go Sync `go vet` & race tests, OpenAPI 3.1 validation, Mobile TS/ESLint/Jest checks, and full Docker Compose E2E smoke test |
+| **CD — Backend** | `.github/workflows/cd-backend.yml` | Push (`main`), tags (`v*.*.*`), manual | Builds & pushes `antispam-fastapi` and `antispam-go-sync` images to GHCR (`ghcr.io`), with optional SSH production deployment |
+| **CD — Android** | `.github/workflows/cd-mobile-android.yml` | Push (`main`), tags (`v*.*.*`), manual | Builds Android Release APK & Google Play App Bundle (`.aab`), uploads artifacts, and publishes GitHub Releases on version tags |
+| **CD — Legal Portal** | `.github/workflows/pages.yml` | Push (`main` `docs/**`), manual | Deploys `docs/` (Privacy Policy, Terms of Service, Account Deletion portal) to GitHub Pages |
+| **Dependabot** | `.github/dependabot.yml` | Weekly schedule | Automated dependency updates for GitHub Actions, pip, Go modules, npm, Gradle, and Docker |
+
+### Optional Repository Secrets & Variables
+
+- **Android Production Signing** (`cd-mobile-android.yml` — falls back to debug keystore if omitted):
+  - `ANDROID_KEYSTORE_BASE64`: Base64-encoded upload keystore (`base64 -w 0 my-upload-key.keystore`)
+  - `ANDROID_KEYSTORE_PASSWORD`: Keystore password
+  - `ANDROID_KEY_ALIAS`: Upload key alias
+  - `ANDROID_KEY_PASSWORD`: Upload key password
+- **Production SSH Deployment** (`cd-backend.yml` — enabled when repository variable `ENABLE_SSH_DEPLOY=true`):
+  - `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, and optional variable `DEPLOY_PATH` (defaults to `/opt/antispam`)

@@ -1,0 +1,260 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 1. FastAPI Backend — Lint, Migrations & Tests
+  # ──────────────────────────────────────────────────────────────────────────────
+  fastapi-ci:
+    name: Backend — FastAPI (Python 3.12)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: antispam
+          POSTGRES_USER: antispam
+          POSTGRES_PASSWORD: changeme_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U antispam -d antispam"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://antispam:changeme_ci@localhost:5432/antispam
+      REDIS_URL: redis://localhost:6379
+      SECRET_KEY: ci_test_secret_key_that_is_at_least_64_characters_long_for_validation!
+      ENVIRONMENT: test
+      LOG_LEVEL: warning
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: backend/fastapi/pyproject.toml
+
+      - name: Install FastAPI & dev dependencies
+        working-directory: backend/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint with Ruff
+        working-directory: backend/fastapi
+        run: ruff check .
+
+      - name: Verify SQL migrations on PostgreSQL 16
+        env:
+          PGPASSWORD: changeme_ci
+        run: |
+          for sql_file in infra/migrations/*.sql; do
+            echo "Applying migration: $sql_file"
+            psql -h localhost -U antispam -d antispam -v ON_ERROR_STOP=1 -f "$sql_file"
+          done
+
+      - name: Run Pytest suite with coverage
+        working-directory: backend/fastapi
+        run: pytest -v --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
+
+      - name: Upload FastAPI coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastapi-coverage
+          path: backend/fastapi/coverage.xml
+          retention-days: 14
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 2. Go Sync Service — Vet, Race Tests & Binary Build
+  # ──────────────────────────────────────────────────────────────────────────────
+  go-sync-ci:
+    name: Backend — Go Sync (Go 1.23)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/go-sync
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.23
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          cache-dependency-path: backend/go-sync/go.mod
+
+      - name: Download dependencies and tidy
+        run: go mod tidy
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Run unit tests with race detector
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Build go-sync binary
+        run: CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-sync ./cmd/server
+
+      - name: Upload Go coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-sync-coverage
+          path: backend/go-sync/coverage.out
+          retention-days: 14
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 3. OpenAPI 3.1 Specification Validation
+  # ──────────────────────────────────────────────────────────────────────────────
+  openapi-validate:
+    name: Shared — OpenAPI 3.1 Spec
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate OpenAPI 3.1 YAML specification
+        run: |
+          pip install pyyaml
+          python -c "
+          import yaml, sys
+          with open('shared/openapi.yaml', 'r', encoding='utf-8') as f:
+              spec = yaml.safe_load(f)
+          assert str(spec.get('openapi', '')).startswith('3.1'), 'Expected OpenAPI 3.1.x'
+          assert 'paths' in spec and len(spec['paths']) > 0, 'Missing paths in OpenAPI spec'
+          required = ['/api/v1/auth/register', '/api/v1/auth/login', '/api/v1/reports', '/sync', '/lookup', '/health']
+          for route in required:
+              assert route in spec['paths'], f'Missing required path: {route}'
+          print(f'Validated OpenAPI {spec[\"openapi\"]} spec with {len(spec[\"paths\"])} paths successfully.')
+          "
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 4. Mobile App — TypeScript, ESLint & Jest Unit Tests
+  # ──────────────────────────────────────────────────────────────────────────────
+  mobile-ci:
+    name: Mobile — React Native (TS, Lint, Jest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript type-check
+        run: npm run type-check
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Jest unit tests
+        run: npm test -- --ci --coverage
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # 5. Docker Compose Integration & End-to-End Smoke Test
+  # ──────────────────────────────────────────────────────────────────────────────
+  docker-smoke-test:
+    name: Infra — Docker Compose E2E Smoke Test
+    runs-on: ubuntu-latest
+    needs: [fastapi-ci, go-sync-ci, openapi-validate]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare environment configuration
+        run: cp infra/.env.example infra/.env
+
+      - name: Build and start Docker Compose stack
+        working-directory: infra
+        run: docker compose up -d --build --wait
+
+      - name: Run end-to-end API smoke tests via Nginx
+        run: |
+          set -e
+          echo "1. Checking Nginx health..."
+          curl -fsS http://localhost/health | grep '"ok"'
+
+          echo "2. Checking Go Sync health via Nginx..."
+          curl -fsS http://localhost/go/health | grep '"go-sync"'
+
+          echo "3. Checking seeded spam number via Go /lookup..."
+          curl -fsS "http://localhost/lookup?number=%2B12025551001" | grep '"is_spam":true'
+
+          echo "4. Streaming initial sync deltas via Go /sync..."
+          SYNC_COUNT=$(curl -fsS "http://localhost/sync?since=0&limit=10" | wc -l)
+          echo "Streamed $SYNC_COUNT delta rows"
+          test "$SYNC_COUNT" -ge 1
+
+          echo "5. Registering a user via FastAPI /api/v1/auth/register..."
+          TOKEN_JSON=$(curl -fsS -X POST http://localhost/api/v1/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"email":"smoke@antispam.dev","password":"SmokeTestPassword123!","display_name":"Smoke Tester"}')
+          ACCESS_TOKEN=$(python3 -c "import sys, json; print(json.loads(sys.argv[1])['access_token'])" "$TOKEN_JSON")
+
+          echo "6. Verifying authenticated profile & blocklist sync..."
+          curl -fsS http://localhost/api/v1/auth/me \
+            -H "Authorization: Bearer $ACCESS_TOKEN" | grep '"smoke@antispam.dev"'
+
+          curl -fsS -X POST http://localhost/api/v1/user/blocklist/sync \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"numbers":[{"phone_number":"+2348162051907","label":"Test Spam"}],"prefixes":[{"prefix":"+234201","label":"Lagos VoIP"}]}' \
+            | grep '"+2348162051907"'
+
+          echo "All E2E smoke checks passed!"
+
+      - name: Dump container logs on failure
+        if: failure()
+        working-directory: infra
+        run: docker compose logs --no-color
+
+      - name: Tear down Docker Compose stack
+        if: always()
+        working-directory: infra
+        run: docker compose down -v

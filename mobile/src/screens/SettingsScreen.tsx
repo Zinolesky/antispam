@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  Image,
 } from 'react-native';
 import { stitchAlert as Alert } from '../components/StitchAlert';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -294,8 +295,12 @@ export default function SettingsScreen() {
       {/* Top App Bar */}
       <View style={styles.topBar}>
         <View style={styles.inline}>
-          <Symbol name="shield" size={24} color={c.primary} />
-          <Text style={[t.headlineSm, { color: c.onSurface }]}>ShieldCall</Text>
+          <Image
+            source={require('../assets/hushline_icon.png')}
+            style={{ width: 28, height: 28, marginRight: 8 }}
+            resizeMode="contain"
+          />
+          <Text style={[t.headlineSm, { color: c.onSurface }]}>HushLine</Text>
         </View>
         <View style={[styles.inline, { gap: 12 }]}>
           <View
@@ -528,7 +533,7 @@ export default function SettingsScreen() {
                 Auto-Drop 90%+ Scam Risk Calls
               </Text>
               <Text style={[t.bodySm, { color: c.outline, marginTop: 2 }]}>
-                Disconnect robocallers before handset wake-up via ShieldCall AI heuristics.
+                Disconnect robocallers before handset wake-up via HushLine AI heuristics.
               </Text>
             </View>
             <StitchToggle value={autoDropScamRisk} onChange={setAutoDropScamRisk} />
@@ -704,7 +709,7 @@ export default function SettingsScreen() {
               <View style={styles.modalPanel}>
                 <View style={styles.modalHandle} />
                 <Text style={[t.headlineSm, { color: c.onSurface, marginBottom: 4 }]}>
-                  {authMode === 'login' ? 'Sign In to ShieldCall' : 'Create Account'}
+                  {authMode === 'login' ? 'Sign In to HushLine' : 'Create Account'}
                 </Text>
                 <Text style={[t.bodySm, { color: c.outline, marginBottom: 16 }]}>
                   Synchronize your personal blocklists and prefix rules across all devices.
