@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /go-sync ./cmd/server
 
 # ── Minimal runtime image ──────────────────────────────────────────────────────
-FROM alpine:3.20 AS runtime
+FROM alpine:3.24 AS runtime
 RUN apk add --no-cache ca-certificates tzdata
 COPY --from=builder /go-sync /go-sync
 
