@@ -49,6 +49,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install required Android SDK packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "cmake;3.22.1" "ndk;26.1.10909125"
+
       - name: Set up Gradle with caching
         uses: gradle/actions/setup-gradle@v4
 
@@ -61,8 +66,8 @@ jobs:
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          # Remove any host-specific local.properties so Gradle uses $ANDROID_HOME on the runner
-          rm -f local.properties
+          # Write local.properties so Gradle uses $ANDROID_HOME on the runner
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
           chmod +x gradlew
 
           # Ensure debug.keystore exists for fallback/debug signing

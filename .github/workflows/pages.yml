@@ -9,9 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: "pages"
@@ -20,23 +18,19 @@ concurrency:
 jobs:
   deploy-pages:
     name: Deploy docs/ to GitHub Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Validate documentation entrypoint
+        run: |
+          test -f docs/index.html || { echo "docs/index.html missing"; exit 1; }
 
-      - name: Upload static docs artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy static docs to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: "./docs"
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          force_orphan: true
