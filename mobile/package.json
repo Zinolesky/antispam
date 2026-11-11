@@ -22,7 +22,7 @@
     "react-native-screens": "^3.35.0",
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-vector-icons": "^10.2.0",
-    "zustand": "^5.0.2"
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
