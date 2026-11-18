@@ -114,7 +114,7 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Upload Android APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: antispam-android-apk-${{ github.sha }}
           path: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Upload Android App Bundle (AAB) artifact
         if: github.event.inputs.build_type != 'debug'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: antispam-android-aab-${{ github.sha }}
           path: |

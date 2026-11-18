@@ -86,7 +86,7 @@ jobs:
         run: pytest -v --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
 
       - name: Upload FastAPI coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fastapi-coverage
           path: backend/fastapi/coverage.xml
@@ -125,7 +125,7 @@ jobs:
         run: CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o go-sync ./cmd/server
 
       - name: Upload Go coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: go-sync-coverage
           path: backend/go-sync/coverage.out
